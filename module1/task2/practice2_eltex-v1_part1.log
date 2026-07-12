@@ -1,0 +1,239 @@
+ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/eltex-v1/.ssh/id_rsa):
+Created directory '/home/eltex-v1/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/eltex-v1/.ssh/id_rsa
+Your public key has been saved in /home/eltex-v1/.ssh/id_rsa.pub
+The key fingerprint is:
+SHA256:U7/WqIDG4+zsWJ8CsCsCpeqLQmAI2PqjpfHU7Gnr59s eltex-v1@eltex-2026-summer
+The key's randomart image is:
++---[RSA 3072]----+
+|..               |
+|o .              |
+|o.        .      |
+|+.o      . .     |
+|o+ =    S   .    |
+|+.* +. . .   +   |
+|+B + o* .   + .  |
+|O o +Bo+ o o     |
+|=+.o+*OoE .      |
++----[SHA256]-----+
+ssh-copy-id -i /home/eltex-v1/.ssh/id_rsa.pub root@172.16.9.175
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/home/eltex-v1/.ssh/id_rsa.pub"
+The authenticity of host '172.16.9.175 (172.16.9.175)' can't be established.
+ED25519 key fingerprint is SHA256:YNVzj+RtetZfXv5XUn/CUjeEcaMD4eg3jy8EuGGIS+o.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+root@172.16.9.175's password:
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'root@172.16.9.175'"
+and check to make sure that only the key(s) you wanted were added.
+
+eltex-v1@eltex-2026-summer(11:55):~> cat /home/eltex-v1/.ssh/id_rsa.pub
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD3h6XCcTaU9dtOfg4rPN5VExXo3r6n8dm+jabxgf6YMBPzc4LXEO9kPjFgBvkC2NHZMp4QW0E2a+eV6/cOz303EnanNBBJvMRYTGVpBtr4IuEreRBsXKTT1rM0r2ptevT41y+CN4TNjrrNfcjmG1rGd+3F8SMBcB5Ivsy8ULZxyV4IsHJ1kGy4Rv7hVuvh0vQ54c757XkWPzNgbZ3SQFLWAVvYzN2nkUkZC3f4e4PbgurhuCpfxKuYD7J5T05DP9hlt6XdxYktfUoUOlZOXLO9cdM+MYCK9khBHsktlyVQ8TxR5HMBCV/lVYeLIyxaruoktZpr2+DsyTBkWrJZvK509bMiYpqQ9/XFVGzknw1WivIvogDF8HosRLekjWxquz1wMZBy7en07PR4OEZg6CjYP0fYpqZHkaNfAlyqHg4snRKLLMC4pPCA+naeCT2QXuo6wBn2jL36QKIiO/yDsn3K9aXSyPjCvxDwd0lLJ14TmUjujEhXg+zn8cuCRhr79LM= eltex-v1@eltex-2026-summer
+
+root@eltex-practice2-v1:~# cat ~/.ssh/authorized_keys
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD3h6XCcTaU9dtOfg4rPN5VExXo3r6n8dm+jabxgf6YMBPzc4LXEO9kPjFgBvkC2NHZMp4QW0E2a+eV6/cOz303EnanNBBJvMRYTGVpBtr4IuEreRBsXKTT1rM0r2ptevT41y+CN4TNjrrNfcjmG1rGd+3F8SMBcB5Ivsy8ULZxyV4IsHJ1kGy4Rv7hVuvh0vQ54c757XkWPzNgbZ3SQFLWAVvYzN2nkUkZC3f4e4PbgurhuCpfxKuYD7J5T05DP9hlt6XdxYktfUoUOlZOXLO9cdM+MYCK9khBHsktlyVQ8TxR5HMBCV/lVYeLIyxaruoktZpr2+DsyTBkWrJZvK509bMiYpqQ9/XFVGzknw1WivIvogDF8HosRLekjWxquz1wMZBy7en07PR4OEZg6CjYP0fYpqZHkaNfAlyqHg4snRKLLMC4pPCA+naeCT2QXuo6wBn2jL36QKIiO/yDsn3K9aXSyPjCvxDwd0lLJ14TmUjujEhXg+zn8cuCRhr79LM= eltex-v1@eltex-2026-summer
+
+#!/bin/bash
+
+if ["$SSH1" = "$SSH2"]; then
+        echo "eq"
+fi
+
+exit 0
+
+bash streq
+eq
+
+root@eltex-practice2-v1:~# ls -l ~/.ssh/authorized_keys
+-rw------- 1 root root 580 Jul  8 04:52 /root/.ssh/authorized_keys
+
+eltex-v1@eltex-2026-summer(11:55):~> ls -l /home/eltex-v1/.ssh/id_rsa.pub
+-rw-r--r-- 1 eltex-v1 eltex-v1 580 июл  8 11:48 /home/eltex-v1/.ssh/id_rsa.pub
+
+root@eltex-practice2-v1:~# useradd -m -s /bin/bash user1
+root@eltex-practice2-v1:~# ls /home/
+tech  user1
+
+root@eltex-practice2-v1:~# passwd user1
+New password:
+Retype new password:
+passwd: password updated successfully
+
+root@eltex-practice2-v1:~# useradd -m -s /bin/bash user2
+root@eltex-practice2-v1:~# useradd -m -s /bin/bash user3
+root@eltex-practice2-v1:~# ls  /home/
+tech  user1  user2  user3
+
+root@eltex-practice2-v1:~# usermod -s /usr/sbin/nologin user3
+
+root@eltex-practice2-v1:~# su user3
+This account is currently not available.
+
+root@eltex-practice2-v1:~# su -s /bin/bash user3
+user3@eltex-practice2-v1:/root$
+
+user3@eltex-practice2-v1:/root$ logout
+bash: logout: not login shell: use `exit'
+user3@eltex-practice2-v1:/root$ exit
+exit
+
+groupadd -U user1,user2,user3 usergroup
+
+root@eltex-practice2-v1:~# mkdir /opt/share
+
+chgrp usergroup /opt/share
+
+
+root@eltex-practice2-v1:~#  ls -l /opt | grep 'share'
+drwxr-xr-x 2 root usergroup 4096 Jul 8 05:54 share
+
+root@eltex-practice2-v1:~# chmod g=rwxs /opt/share
+root@eltex-practice2-v1:~# ls -l /opt | grep 'share'
+drwxrwsr-x 2 root usergroup 4096 Jul  8 05:54 share
+
+root@eltex-practice2-v1:~# su user1
+user1@eltex-practice2-v1:/root$ umask -S
+u=rwx,g=rwx,o=rx
+user1@eltex-practice2-v1:/root$ umask u=rwx,g=rwx,o=x
+user1@eltex-practice2-v1:/root$ umask -S
+u=rwx,g=rwx,o=x
+
+root@eltex-practice2-v1:~# nano /home/user1/.bashrc
+umask 006
+root@eltex-practice2-v1:~# source /home/user1/.bashrc
+#до ребута
+user1@eltex-practice2-v1:/root$ touch /home/user1/testf
+user1@eltex-practice2-v1:/root$ mkdir /home/user1/testd
+user1@eltex-practice2-v1:/root$ ls -l /home/user1/ | grep 'test'
+drwxrwx--x 2 user1 user1 4096 Jul  9 04:33 testd
+-rw-rw---- 1 user1 user1    0 Jul  9 04:30 testf
+#после
+user1@eltex-practice2-v1:/root$ touch /home/user1/testf2
+user1@eltex-practice2-v1:/root$ mkdir /home/user1/testd2
+user1@eltex-practice2-v1:/root$ ls -l /home/user1/ | grep 'test'
+drwxrwx--x 2 user1 user1 4096 Jul  9 04:33 testd
+drwxrwx--x 2 user1 user1 4096 Jul  9 04:38 testd2
+-rw-rw---- 1 user1 user1    0 Jul  9 04:30 testf
+-rw-rw---- 1 user1 user1    0 Jul  9 04:37 testf2
+
+user1@eltex-practice2-v1:/root$ touch /opt/share/user1f
+
+user2@eltex-practice2-v1:/root$ touch /opt/share/user2f
+user2@eltex-practice2-v1:/root$ rm /opt/share/user1f
+
+user3@eltex-practice2-v1:/root$ touch /opt/share/user3f
+user3@eltex-practice2-v1:/root$ rm /opt/share/user2f
+user3@eltex-practice2-v1:/root$ rm /opt/share/user3f
+
+root@eltex-practice2-v1:~# ls -l /opt/share/
+total 0
+
+root@eltex-practice2-v1:~# ls -ld /opt/share/
+drwxrwsr-t 2 root usergroup 4096 Jul  9 04:44 /opt/share/
+
+root@eltex-practice2-v1:~# su user1
+user1@eltex-practice2-v1:/root$ touch /opt/share/user1f
+user1@eltex-practice2-v1:/root$ exit
+exit
+root@eltex-practice2-v1:~# su user2
+user2@eltex-practice2-v1:/root$ touch /opt/share/user2f
+user2@eltex-practice2-v1:/root$ rm /opt/share/user1f
+rm: cannot remove '/opt/share/user1f': Operation not permitted
+
+root@eltex-practice2-v1:~# which dmesg
+/usr/bin/dmesg
+visudo -f /etc/sudoers.d/user1
+user1   ALL=(ALL:ALL) /usr/bin/dmesg
+
+user1@eltex-practice2-v1:~$ sudo dmesg
+[sudo] password for user1:
+[    0.000000] Linux version 6.8.0-55-generic (buildd@lcy02-amd64-095) (x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #57-
+Ubuntu SMP PREEMPT_DYNAMIC Wed Feb 12 23:42:21 UTC 2025 (Ubuntu 6.8.0-55.57-generic 6.8.12)
+[    0.000000] Command line: BOOT_IMAGE=/vmlinuz-6.8.0-55-generic root=/dev/mapper/ubuntu--vg-ubuntu--lv ro
+[    0.000000] KERNEL supported cpus:
+[    0.000000]   Intel GenuineIntel
+[    0.000000]   AMD AuthenticAMD
+[    0.000000]   Hygon HygonGenuine
+[    0.000000]   Centaur CentaurHauls
+[    0.000000]   zhaoxin   Shanghai
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable
+[    0.000000] BIOS-e820: [mem 0x000000000009fc00-0x000000000009ffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000000f0000-0x00000000000fffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000000100000-0x00000000bffd9fff] usable
+[    0.000000] BIOS-e820: [mem 0x00000000bffda000-0x00000000bfffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000feffc000-0x00000000feffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x00000000fffc0000-0x00000000ffffffff] reserved
+[    0.000000] BIOS-e820: [mem 0x0000000100000000-0x000000013fffffff] usable
+[    0.000000] BIOS-e820: [mem 0x000000fd00000000-0x000000ffffffffff] reserved
+...
+
+
+root@eltex-practice2-v1:~# nano /home/user2/udmesg
+#!/bin/bash -p
+dmesg
+exit 0
+root@eltex-practice2-v1:~# chmod u+sx /home/user2/udmesg
+root@eltex-practice2-v1:~# ls -ld /home/user2/udmesg
+-rwsr--r-- 1 user2 root 28 Jul  9 08:01 /home/user2/udmesg
+user2@eltex-practice2-v1:~$ bash udmesg
+dmesg: read kernel buffer failed: Operation not permitted
+#не сработало(
+
+root@eltex-practice2-v1:~# chage -M 10 user1
+root@eltex-practice2-v1:~# chage -M 10 user2
+root@eltex-practice2-v1:~# chage -M 10 user3
+
+rsync -ra /etc/ /root/etc_backup
+
+tar -czf etc.tar.gz etc_backup
+apt install bzip2
+tar -cjf etc.tar.bz2 etc_backup/
+tar -cf - etc_backup/ | 7za a -si etc.tar.7z
+
+ls -lh
+total 1.6M
+drwxr-xr-x 109 root root 4.0K Jul  9 11:15 etc_backup
+-rw-r--r--   1 root root 475K Jul 10 04:28 etc.tar.7z
+-rw-r--r--   1 root root 549K Jul  9 13:07 etc.tar.bz2
+-rw-r--r--   1 root root 583K Jul  9 11:36 etc.tar.gz
+-rw-r--r--   1 root root   64 Jul  8 05:11 streq
+
+echo $(date +%d.%m.%Y-%H:%M) >> /etc/motd
+
+rsync -a /etc/ /root/etc_backup
+
+mkdir /tmp/etc.bak
+tar -xzf etc.tar.gz -C /tmp/etc.bak
+cp etc_backup/motd /tmp/etc.bak/etc_backup/motd
+tar -czf etc.tar.gz -C /tmp/etc.bak/ etc_backup
+#можно было проще через 
+#	tar -az etc_backup/motd -f etc.tar.gz
+#но не уверен, что оно заменит файл
+
+
+tar -x --bzip -f etc.tar.bz2 -C /tmp/compbz/
+diff -r etc_backup/ /tmp/compbz/etc_backup/ > bzipdiff
+diff: etc_backup/mtab: No such file or directory
+diff: /tmp/compbz/etc_backup/mtab: No such file or directory
+diff: etc_backup/os-release: No such file or directory
+diff: /tmp/compbz/etc_backup/os-release: No such file or directory
+diff: etc_backup/resolv.conf: No such file or directory
+diff: /tmp/compbz/etc_backup/resolv.conf: No such file or directory
+
+tar -x --gzip -f etc.tar.gz -C /root/etc_backup_gzip/
+7za x -so etc.tar.7z | tar -xf - -C /root/etc_backup_7zip/
+ls
+bzipdiff  etc_backup  etc_backup_7zip  etc_backup_gzip  etc.tar.7z  etc.tar.bz2  etc.tar.gz  streq
+diff etc_backup_7zip/etc_backup/motd etc_backup_gzip/etc_backup/motd
+1a2
+> 10.07.2026-05:31
+

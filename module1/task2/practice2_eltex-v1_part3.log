@@ -1,0 +1,73 @@
+root@eltex-practice2-v1:~/p2-2# git config --global user.name "RickLater0"
+root@eltex-practice2-v1:~/p2-2# git config --global user.email "n.ablamskiy@yandex.ru"
+root@eltex-practice2-v1:~/p2-2# git config --global init.defaultBranch main
+
+apt update
+apt install git gh
+
+ssh-keygen -t ed25519 -f ~/.ssh/RL0
+
+root@eltex-practice2-v1:~/p2-2# gh auth login
+? What account do you want to log into? GitHub.com
+? What is your preferred protocol for Git operations on this host? SSH
+? Upload your SSH public key to your GitHub account? /root/.ssh/RL0.pub
+? Title for your SSH key: eltex-practice2-v1
+? How would you like to authenticate GitHub CLI? Login with a web browser
+
+✓ Logged in as RickLater0
+
+gh auth setup-git --hostname github.com
+gh auth status
+github.com
+  ✓ Logged in to github.com account RickLater0 (/root/.config/gh/hosts.yml)
+  - Active account: true
+  - Git operations protocol: ssh
+  - Token: gho_************************************
+  - Token scopes: 'admin:public_key', 'gist', 'read:org', 'repo'
+
+gh repo create --public ELTEX
+✓ Created repository RickLater0/ELTEX on GitHub
+  https://github.com/RickLater0/ELTEX
+
+echo "# ELTEX" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:RickLater0/ELTEX.git
+git push -u origin main
+
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+root@eltex-practice2-v1:~/ELTEX# ssh-add ~/.ssh/RL0.pub
+Could not open a connection to your authentication agent.
+root@eltex-practice2-v1:~/ELTEX# eval `ssh-agent -s`
+Agent pid 18407
+root@eltex-practice2-v1:~/ELTEX# ssh-add ~/.ssh/RL0.pub
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/root/.ssh/RL0.pub' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+
+root@eltex-practice2-v1:~/ELTEX# ssh-add ~/.ssh/RL0
+Identity added: /root/.ssh/RL0 (root@eltex-practice2-v1)
+
+root@eltex-practice2-v1:~/ELTEX# ssh -T git@github.com
+Hi RickLater0! You've successfully authenticated, but GitHub does not provide shell access.
+
+root@eltex-practice2-v1:~/ELTEX# git push -u origin main
+Enumerating objects: 6, done.
+Counting objects: 100% (6/6), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (6/6), 511 bytes | 511.00 KiB/s, done.
+Total 6 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:RickLater0/ELTEX.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'
+

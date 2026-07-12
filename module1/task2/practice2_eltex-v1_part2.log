@@ -1,0 +1,194 @@
+uptime -s
+2026-07-09 15:00:38
+date -d "$(uptime -s) 20 seconds" +"%Y-%m-%d %H:%M:%S"
+2026-07-09 15:00:58
+#не работает - не выдаёт ничего (время запуска у утилит отличается...):
+journalctl -b --until "$(date -d "$(uptime -s) 20 seconds" +"%Y-%m-%d %H:%M:%S")"
+#не работает - выдаёт лишнее (+20с от текущего времени, видимо, а не от момента запуска):
+journalctl -b --until "+20s"
+#
+root@eltex-practice2-v1:~# date -d "$(journalctl -b -n +1 -o short-iso | awk '{print $1}')" +"%Y-%m-%d %H:%M:%S"
+2026-07-09 15:02:18
+root@eltex-practice2-v1:~# date -d "$(journalctl -b -n +1 -o short-iso | awk '{print $1}') 20 seconds" +"%Y-%m-%d %H:%M:%S"
+2026-07-09 15:02:38
+journalctl -b --until "$(date -d "$(journalctl -b -n +1 -o short-iso | awk '{print $1}') 20 seconds" +"%Y-%m-%d %H:%M:%S")" > journalfirst20s.log
+#результат в /root/p2-2/journalfirst20s.log на сервере п.2; вот последние записи из файла:
+...
+Jul 09 15:02:19 localhost systemd[1]: Reached target swap.target - Swaps.
+Jul 09 15:02:19 localhost systemd-journald[309]: Time spent on flushing to /var/log/journal/560b026a44d3424ea490d29e1a7e2775 is 8.030876s for 747 entries.
+Jul 09 15:02:19 localhost systemd-journald[309]: System Journal (/var/log/journal/560b026a44d3424ea490d29e1a7e2775) is 82.6M, max 1.4G, 1.3G free.
+
+
+find / -type f -name auth.log
+/var/log/auth.log
+#пример строки
+2026-07-11T07:17:01.304251+00:00 eltex-practice2-v1 CRON[17177]: pam_unix(cron:session): session closed for user root
+#источник - 3 
+awk -f p2-2/authawk /var/log/auth.log | sed 's/\[[0-9]*\]//' | sort -k1 > p2-2/auth.log
+#содержимое /root/p2-2/authawk. выводит колонки с третьей по последнюю
+{
+        for(i=3; i<=NF; i++)
+                printf "%s ", $i;
+        print ""
+}
+#awk оставляет только источник с сообщением. sed (аналог которого (sub) можно было использовать в awk) убирает pid. sort сортирует по первому столбцу
+#ещё find можно было сунуть вместо конкретного пути, но зачем
+
+#p3.awk
+BEGIN {
+        FS=": "
+}
+{
+        src=$1
+        cnt[src]++
+}
+END {
+        for(s in cnt)
+                print cnt[s], s
+}
+
+
+awk -f p3.awk auth.log | sort -k1 -rn
+1130 CRON
+124 polkitd
+69 su
+65 systemd-logind
+65 sshd
+20 useradd
+13 (systemd)
+10 sudo
+6 chage
+5 passwd
+4 nologin
+3 login
+3 groupadd
+1 usermod
+1 (sd-pam)
+1 dbus-daemon
+1 chpasswd
+
+#пример строки
+#uname, pswd?, uid, gid, хз, дом. дир., shell
+user3:x:1003:1003::/home/user3:/usr/sbin/nologin
+#группы
+
+usergroup:x:1004:user1,user2,user3
+#p4.awk
+BEGIN{
+        FS=":"
+        OFS=""
+        gfile="/etc/group"
+        #print "debug"
+        #print ""
+        while((getline < gfile) > 0){
+                gname=$1
+                gid=$3
+                usrs=$4
+                split(usrs, users, ",")
+                for(i in users){
+                        usr = users[i]
+                        ugroup[usr] = ((ugroup[usr] == "" ? "" : (ugroup[usr] ",")) gname)
+        #               printf "%s ", usr
+                }
+        #       print ""
+                idgroup[gid]=gname
+        }
+        #print "end debug"
+        #print ""
+        close(gfile)
+        printf "%-10s %-20s %s\n\n", "UID", "USERNAME", "GROUPS" > "/root/p2-2/p4.log"
+}
+{
+        if($NF=="/usr/sbin/nologin"){
+                uname=$1
+                gid=$4
+                uid=$3
+                groups = idgroup[gid] (ugroup[uname]=="" ? "" : ("," ugroup[uname]))
+                printf "%-10s %-20s %s\n", uid, uname, groups | "sort -k1 -rn >> /root/p2-2/p4.log"
+        }
+}
+#p4.log
+UID        USERNAME             GROUPS
+
+65534      nobody               nogroup
+1003       user3                user3,usergroup
+998        systemd-network      systemd-network
+997        systemd-timesync     systemd-timesync
+992        systemd-resolve      systemd-resolve
+991        polkitd              polkitd
+989        fwupd-refresh        fwupd-refresh
+109        sshd                 nogroup
+108        usbmux               plugdev
+107        landscape            landscape
+105        tcpdump              tcpdump
+104        uuidd                uuidd
+103        syslog               syslog,adm
+101        messagebus           messagebus
+42         _apt                 nogroup
+39         irc                  irc
+38         list                 list
+34         backup               backup
+33         www-data             www-data
+13         proxy                proxy
+10         uucp                 uucp
+9          news                 news
+8          mail                 mail
+7          lp                   lp
+6          man                  man
+5          games                games
+3          sys                  sys
+2          bin                  bin
+1          daemon               daemon
+
+dmesg | grep "kernel"
+[    0.095707] Booting paravirtualized kernel on KVM
+[    0.195321] Memory: 3925880K/4193760K available (22528K kernel code, 4439K rwdata, 14420K rodata, 4924K init, 4788K bss, 267620K reserved, 0K cma-reserved)
+[    0.690453] Loaded X.509 cert 'Build time autogenerated kernel key: 79aab6b364387381d7a5d225dcfcd094a654ef62'
+[    8.324522] Loaded X.509 cert 'Build time autogenerated kernel key: 79aab6b364387381d7a5d225dcfcd094a654ef62'
+[    8.342180] Freeing unused kernel image (initmem) memory: 4924K
+[    8.342810] Write protecting the kernel read-only data: 38912k
+[    8.343811] Freeing unused kernel image (rodata/data gap) memory: 1964K
+[  100.311433] systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+[  100.364252] systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+[  100.440614] systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+
+grep -c "" /var/log/kern.log
+5429
+
+cat /var/log/apt/history.log | tail -8
+Commandline: /usr/bin/unattended-upgrade
+Upgrade: snapd:amd64 (2.66.1+24.04, 2.73+ubuntu24.04.2)
+End-Date: 2026-07-10  06:08:03
+
+Start-Date: 2026-07-10  06:08:05
+Commandline: /usr/bin/unattended-upgrade
+Upgrade: sudo:amd64 (1.9.15p5-3ubuntu5, 1.9.15p5-3ubuntu5.24.04.2)
+End-Date: 2026-07-10  06:08:10
+
+#p7.awk
+BEGIN{
+        FS="\n"
+        RS="\n\n"
+        OFS="; "
+}
+{
+        cl = "CL"
+        sd = "START"
+        ed = "END"
+        for(i = 1; i <= NF; i++){
+                if($i ~ /^Commandline:/) cl = $i
+                else if($i ~ /^Start-Date:/) sd = $i
+                else if($i ~ /^End-Date:/) ed = $i
+        }
+        print cl, sd, ed
+}
+
+awk -f p7.awk /var/log/apt/history.log > p7.log
+#p7.log
+...
+Commandline: /usr/bin/unattended-upgrade; Start-Date: 2026-07-10  06:07:42; End-Date: 2026-07-10  06:07:45
+Commandline: /usr/bin/unattended-upgrade; Start-Date: 2026-07-10  06:07:46; End-Date: 2026-07-10  06:07:51
+Commandline: /usr/bin/unattended-upgrade; Start-Date: 2026-07-10  06:07:53; End-Date: 2026-07-10  06:08:03
+Commandline: /usr/bin/unattended-upgrade; Start-Date: 2026-07-10  06:08:05; End-Date: 2026-07-10  06:08:10
+
+
