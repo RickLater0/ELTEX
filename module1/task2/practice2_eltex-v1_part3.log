@@ -70,4 +70,151 @@ Total 6 (delta 0), reused 0 (delta 0), pack-reused 0
 To github.com:RickLater0/ELTEX.git
  * [new branch]      main -> main
 branch 'main' set up to track 'origin/main'
+#лог второго раздела утерян. прикреплю pdf вместо него
+#по какой-то причине scp с этой машины не хотел работать с портом 22 и 44556
+#поэтому скачивал файлы через машину первой практики
+scp ~/*.log ~/*.txt root@172.16.9.175:/root
+eltex-v1_part3_gt20M.log                      100% 2744     7.8MB/s   00:00
+eltex-v1_part3.log                            100%  458     1.5MB/s   00:00
+practice2_eltex-v1_part1.log                  100% 9829    13.7MB/s   00:00
+practice2_eltex-v1_part2.log                  100% 7228    21.3MB/s   00:00
+practice2_eltex-v1_part3.log                  100% 2765     9.3MB/s   00:00
+report_part1.txt                              100%  108   378.4KB/s   00:00
+
+root@eltex-practice2-v1:~/ELTEX# ls
+module1  README.md
+root@eltex-practice2-v1:~/ELTEX# cd module1/
+root@eltex-practice2-v1:~/ELTEX/module1# ls
+task1  task2  task3
+root@eltex-practice2-v1:~/ELTEX/module1# mv ~/practice2* task1/
+root@eltex-practice2-v1:~/ELTEX/module1# ls task1
+eltex-v1_part3.log  practice2_eltex-v1_part1.log  practice2_eltex-v1_part2.log  practice2_eltex-v1_part3.log
+root@eltex-practice2-v1:~/ELTEX/module1# mv task1/practice2* task2/
+root@eltex-practice2-v1:~/ELTEX/module1# ls task1
+eltex-v1_part3.log
+root@eltex-practice2-v1:~/ELTEX/module1# ls task2
+practice2_eltex-v1_part1.log  practice2_eltex-v1_part2.log  practice2_eltex-v1_part3.log
+root@eltex-practice2-v1:~/ELTEX/module1# git add task2/*
+root@eltex-practice2-v1:~/ELTEX/module1# git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   ../M1/P1/eltex-v1_part3.log
+        new file:   task2/practice2_eltex-v1_part1.log
+        new file:   task2/practice2_eltex-v1_part2.log
+        new file:   task2/practice2_eltex-v1_part3.log
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    ../M1/P1/eltex-v1_part3.log
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        task1/
+
+root@eltex-practice2-v1:~/ELTEX/module1# git add task1/*
+root@eltex-practice2-v1:~/ELTEX/module1# git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   ../M1/P1/eltex-v1_part3.log
+        new file:   task1/eltex-v1_part3.log
+        new file:   task2/practice2_eltex-v1_part1.log
+        new file:   task2/practice2_eltex-v1_part2.log
+        new file:   task2/practice2_eltex-v1_part3.log
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    ../M1/P1/eltex-v1_part3.log
+#автоматическое включение ssh-agent 
+#https://forum.manjaro.org/t/configuring-ssh-agent-to-autostart-and-automatically-add-ssh-keys-to-it/99715
+#https://www.ssh.com/academy/ssh/agent
+nano ~/.config/systemd/user/ssh-agent.service
+
+[Unit]
+Description=SSH agent (ssh-agent)
+
+[Service]
+Type=simple
+Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
+Environment=DISPLAY=:0
+ExecStart=ssh-agent -D -a $SSH_AUTH_SOCK
+ExecStartPost=/bin/sleep 3
+ExecStartPost=/bin/sh -c '/usr/bin/ssh-add /root/.ssh/RL0'
+ExecStop=kill -15 $MAINPID
+
+[Install]
+WantedBy=default.target
+#
+root@eltex-practice2-v1:~/ELTEX/module1# export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+root@eltex-practice2-v1:~/ELTEX/module1# nano ~/.ssh/config
+
+AddKeysToAgent yes
+#
+root@eltex-practice2-v1:~/ELTEX/module1# systemctl --user daemon-reload
+root@eltex-practice2-v1:~/ELTEX/module1# systemctl --user enable ssh-agent.service
+root@eltex-practice2-v1:~/ELTEX/module1# systemctl --user start ssh-agent.service
+
+ git status
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   ../M1/P1/eltex-v1_part3.log
+        new file:   task1/eltex-v1_part3.log
+        new file:   task2/practice2_eltex-v1_part1.log
+        new file:   task2/practice2_eltex-v1_part2.log
+        new file:   task2/practice2_eltex-v1_part3.log
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    ../M1/P1/eltex-v1_part3.log
+        modified:   task2/practice2_eltex-v1_part3.log
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        task2/.practice2_eltex-v1_part3.log.swp
+
+root@eltex-practice2-v1:~/ELTEX/module1# git commit "Добавлены файлы второй практики"
+error: pathspec 'Добавлены файлы второй практики' did not match any file(s) known to git
+root@eltex-practice2-v1:~/ELTEX/module1# git commit -m "Добавлены файлы второй практики"
+[main 094e132] Добавлены файлы второй практики
+ 5 files changed, 564 insertions(+)
+ create mode 100644 M1/P1/eltex-v1_part3.log
+ create mode 100644 module1/task1/eltex-v1_part3.log
+ create mode 100644 module1/task2/practice2_eltex-v1_part1.log
+ create mode 100644 module1/task2/practice2_eltex-v1_part2.log
+ create mode 100644 module1/task2/practice2_eltex-v1_part3.log
+root@eltex-practice2-v1:~/ELTEX/module1# git push
+Enumerating objects: 11, done.
+Counting objects: 100% (11/11), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (10/10), 8.26 KiB | 8.26 MiB/s, done.
+Total 10 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:RickLater0/ELTEX.git
+   c80e8e8..094e132  main -> main
+
+
+git commit ../M1/P1/eltex-v1_part3.log -m "Удаление папки?"
+[main 67ebfb7] Удаление папки?
+ 1 file changed, 29 deletions(-)
+ delete mode 100644 M1/P1/eltex-v1_part3.log
+root@eltex-practice2-v1:~/ELTEX/module1# git push
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Delta compression using up to 2 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (2/2), 301 bytes | 301.00 KiB/s, done.
+Total 2 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:RickLater0/ELTEX.git
+   094e132..67ebfb7  main -> main
 

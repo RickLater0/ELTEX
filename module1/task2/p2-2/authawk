@@ -1,0 +1,5 @@
+{
+	for(i=3; i<=NF; i++)
+		printf "%s ", $i;
+	print ""
+}

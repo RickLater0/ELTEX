@@ -1,5 +1,3 @@
-#использованные комманды 
-
 mkdir D1/D2/D3
 echo 'some trash' > D1/D2/file.txt
 ln -s D1/D2/file.txt D1/D2/D3/soft
@@ -15,15 +13,4 @@ find / -type f -name find 2>/dev/null
 file /usr/bin/find
 file /usr/share/bash-completion/completions/find
 file /boot/initrd.img*
-#вывод find и file
-/home/eltex-v1/eltex-v1_part3_gt20M.log
-/home/eltex-v1/practice2_eltex-v1_part1.log
-/home/eltex-v1/practice2_eltex-v1_part3.log
-/home/eltex-v1/practice2_eltex-v1_part2.log
-/home/eltex-v1/.bash_history
-/usr/bin/find
-/usr/share/bash-completion/completions/find
-/usr/bin/find: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=5545a6c7162d325fbe5ffabcbfe4e5521b66ce70, for GNU/Linux 3.2.0, stripped
-/usr/share/bash-completion/completions/find: ASCII text
-/boot/initrd.img-6.1.0-44-amd64: ASCII cpio archive (SVR4 with no CRC)
-/boot/initrd.img-6.1.0-50-amd64: ASCII cpio archive (SVR4 with no CRC)
+
