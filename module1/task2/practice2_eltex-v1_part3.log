@@ -303,3 +303,30 @@ Total 19 (delta 7), reused 0 (delta 0), pack-reused 0
 remote: Resolving deltas: 100% (7/7), completed with 3 local objects.
 To github.com:RickLater0/ELTEX.git
    3862503..e0a13a3  main -> main
+
+root@eltex-practice2-v1:~/ELTEX_clone# git fetch
+remote: Enumerating objects: 36, done.
+remote: Counting objects: 100% (36/36), done.
+remote: Compressing objects: 100% (20/20), done.
+remote: Total 30 (delta 11), reused 24 (delta 9), pack-reused 0 (from 0)
+Unpacking objects: 100% (30/30), 5.55 KiB | 437.00 KiB/s, done.
+From https://github.com/RickLater0/ELTEX
+   b4a656b..46bff85  main       -> origin/main
+
+git log origin/main > ~/ELTEX/git.log
+git diff origin/main > ~/ELTEX/module1/task2/gitdiff.log
+
+git merge
+Updating b4a656b..46bff85
+Fast-forward
+ .gitignore                                      |   1 +
+ module1/task2/.practice2_eltex-v1_part3.log.swp | Bin 1024 -> 1024 bytes
+ module1/task2/practice2_eltex-v1_part3.log      |  85 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 86 insertions(+)
+ create mode 100644 .gitignore
+
+cd ~/ELTEX
+git add .
+git commit -m "pract 2 done"
+git push
+#done

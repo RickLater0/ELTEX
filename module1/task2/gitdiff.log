@@ -1,0 +1,103 @@
+diff --git a/.gitignore b/.gitignore
+deleted file mode 100644
+index d9568ca..0000000
+--- a/.gitignore
++++ /dev/null
+@@ -1 +0,0 @@
+-*swp
+diff --git a/module1/task2/.practice2_eltex-v1_part3.log.swp b/module1/task2/.practice2_eltex-v1_part3.log.swp
+index cd1b6ea..b30359c 100644
+Binary files a/module1/task2/.practice2_eltex-v1_part3.log.swp and b/module1/task2/.practice2_eltex-v1_part3.log.swp differ
+diff --git a/module1/task2/practice2_eltex-v1_part3.log b/module1/task2/practice2_eltex-v1_part3.log
+index 9e28e14..276cbb3 100644
+--- a/module1/task2/practice2_eltex-v1_part3.log
++++ b/module1/task2/practice2_eltex-v1_part3.log
+@@ -218,88 +218,3 @@ Total 2 (delta 0), reused 0 (delta 0), pack-reused 0
+ To github.com:RickLater0/ELTEX.git
+    094e132..67ebfb7  main -> main
+ 
+-#переместил все файлы через mv
+-#загрузил pdf через веб-приложение, но была возмоэность воспользоваться scp
+-scp -J eltex-v1@217.71.138.1::44556 D:/SU/ELTEX/M1/p1/*.pdf root@172.16.9.175:/root/ELTEX/module1/task1
+-git add .
+-git commit -m "Добавлены все файлы за практики, кроме pdf"
+-git push
+-
+-git clone https://github.com/RickLater0/ELTEX.git .
+-Cloning into '.'...
+-remote: Enumerating objects: 48, done.
+-remote: Counting objects: 100% (48/48), done.
+-remote: Compressing objects: 100% (41/41), done.
+-remote: Total 48 (delta 5), reused 38 (delta 1), pack-reused 0 (from 0)
+-Receiving objects: 100% (48/48), 2.10 MiB | 3.36 MiB/s, done.
+-Resolving deltas: 100% (5/5), done.
+-root@eltex-practice2-v1:~/ELTEX_clone# ls
+-module1  README.md
+-
+-#сдался и удалил pdf файлы, но это не помогло
+-#все равно пришлось сливать ветки, чтобы запушить локальные изменения 
+-#изменения в логе потёрлись бы, если бы не открый nano в screen
+-root@eltex-practice2-v1:~/ELTEX# git add .
+-root@eltex-practice2-v1:~/ELTEX# git status
+-On branch main
+-Your branch and 'origin/main' have diverged,
+-and have 2 and 3 different commits each, respectively.
+-  (use "git pull" if you want to integrate the remote branch with yours)
+-
+-Changes to be committed:
+-  (use "git restore --staged <file>..." to unstage)
+-        modified:   module1/task2/.practice2_eltex-v1_part3.log.swp
+-        modified:   module1/task2/practice2_eltex-v1_part3.log
+-
+-root@eltex-practice2-v1:~/ELTEX# git commit -m "upd part3"
+-[main c9acf6f] upd part3
+- 2 files changed, 9 insertions(+)
+-root@eltex-practice2-v1:~/ELTEX# git push
+-To github.com:RickLater0/ELTEX.git
+- ! [rejected]        main -> main (non-fast-forward)
+-error: failed to push some refs to 'github.com:RickLater0/ELTEX.git'
+-hint: Updates were rejected because the tip of your current branch is behind
+-hint: its remote counterpart. If you want to integrate the remote changes,
+-hint: use 'git pull' before pushing again.
+-hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+-root@eltex-practice2-v1:~/ELTEX# git pull
+-hint: You have divergent branches and need to specify how to reconcile them.
+-hint: You can do so by running one of the following commands sometime before
+-hint: your next pull:
+-hint:
+-hint:   git config pull.rebase false  # merge
+-hint:   git config pull.rebase true   # rebase
+-hint:   git config pull.ff only       # fast-forward only
+-hint:
+-hint: You can replace "git config" with "git config --global" to set a default
+-hint: preference for all repositories. You can also pass --rebase, --no-rebase,
+-hint: or --ff-only on the command line to override the configured default per
+-hint: invocation.
+-fatal: Need to specify how to reconcile divergent branches.
+-root@eltex-practice2-v1:~/ELTEX# git remote show
+-origin
+-root@eltex-practice2-v1:~/ELTEX# git remote show origin
+-* remote origin
+-  Fetch URL: git@github.com:RickLater0/ELTEX.git
+-  Push  URL: git@github.com:RickLater0/ELTEX.git
+-  HEAD branch: main
+-  Remote branch:
+-    main tracked
+-  Local branch configured for 'git pull':
+-    main merges with remote main
+-  Local ref configured for 'git push':
+-    main pushes to main (local out of date)
+-
+-root@eltex-practice2-v1:~/ELTEX# git config pull.rebase true
+-root@eltex-practice2-v1:~/ELTEX# git pull
+-Successfully rebased and updated refs/heads/main.
+-root@eltex-practice2-v1:~/ELTEX# git push
+-Enumerating objects: 25, done.
+-Counting objects: 100% (25/25), done.
+-Delta compression using up to 2 threads
+-Compressing objects: 100% (19/19), done.
+-Writing objects: 100% (19/19), 513.41 KiB | 2.75 MiB/s, done.
+-Total 19 (delta 7), reused 0 (delta 0), pack-reused 0
+-remote: Resolving deltas: 100% (7/7), completed with 3 local objects.
+-To github.com:RickLater0/ELTEX.git
+-   3862503..e0a13a3  main -> main
