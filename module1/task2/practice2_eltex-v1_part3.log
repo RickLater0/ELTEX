@@ -218,3 +218,21 @@ Total 2 (delta 0), reused 0 (delta 0), pack-reused 0
 To github.com:RickLater0/ELTEX.git
    094e132..67ebfb7  main -> main
 
+#переместил все файлы через mv
+#загрузил pdf через веб-приложение, но была возмоэность воспользоваться pscp
+pscp -J eltex-v1@217.71.138.1::44556 D:/SU/ELTEX/M1/p1/*.pdf root@172.16.9.175:/root/ELTEX/module1/task1
+git add .
+git commit -m "Добавлены все файлы за практики, кроме pdf"
+git push
+
+git clone https://github.com/RickLater0/ELTEX.git .
+Cloning into '.'...
+remote: Enumerating objects: 48, done.
+remote: Counting objects: 100% (48/48), done.
+remote: Compressing objects: 100% (41/41), done.
+remote: Total 48 (delta 5), reused 38 (delta 1), pack-reused 0 (from 0)
+Receiving objects: 100% (48/48), 2.10 MiB | 3.36 MiB/s, done.
+Resolving deltas: 100% (5/5), done.
+root@eltex-practice2-v1:~/ELTEX_clone# ls
+module1  README.md
+
