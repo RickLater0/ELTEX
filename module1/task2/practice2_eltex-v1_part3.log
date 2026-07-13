@@ -220,7 +220,7 @@ To github.com:RickLater0/ELTEX.git
 
 #переместил все файлы через mv
 #загрузил pdf через веб-приложение, но была возмоэность воспользоваться scp
-scp -J eltex-v1@217.71.138.1::44556 D:/SU/ELTEX/M1/p1/*.pdf root@172.16.9.175:/root/ELTEX/module1/task1
+scp -J eltex-v1@217.71.138.1:44556 D:/SU/ELTEX/M1/p1/*.pdf root@172.16.9.175:/root/ELTEX/module1/task1
 git add .
 git commit -m "Добавлены все файлы за практики, кроме pdf"
 git push
