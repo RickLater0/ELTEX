@@ -30,7 +30,7 @@ static ssize_t read_all(int fd, void *buf, size_t sz) {
     char *ptr = (char*)buf;
     while (total < sz) {
         ssize_t r = read(fd, ptr + total, sz - total);
-        if (r <= 0) return r; // 0 (EOF) или -1 (ошибка)
+        if (r <= 0) return r; 
         total += (size_t)r;
     }
     return (ssize_t)total;
@@ -41,7 +41,7 @@ static ssize_t write_all(int fd, const void *buf, size_t sz) {
     const char *ptr = (const char*)buf;
     while (total < sz) {
         ssize_t w = write(fd, ptr + total, sz - total);
-        if (w <= 0) return w; // Ошибка
+        if (w <= 0) return w; 
         total += (size_t)w;
     }
     return (ssize_t)total;
@@ -154,16 +154,14 @@ static void child_work(int in, int out){
             int fd = open(new_fname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
             if (fd < 0) {
                 fprintf(stderr, "CHILD CANNOT CREATE FILE: %s\n", new_fname);
-                // Мы не можем просто выйти, нужно вычитать присланные данные из pipe
             }
 
-            // Чтение данных файла по частям и их запись
             off_t remaining = filesize;
             char buffer[BUFFER_LEN];
             while (remaining > 0) {
                 size_t to_read = (remaining < (off_t)sizeof(buffer)) ? (size_t)remaining : sizeof(buffer);
                 ssize_t rb = read_all(in, buffer, to_read);
-                if (rb <= 0) break; // Ошибка канала связи
+                if (rb <= 0) break; 
 
                 if (fd >= 0) {
                     write_all(fd, buffer, (size_t) rb);
