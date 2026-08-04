@@ -3,6 +3,7 @@ nettest
 chmo
 
 *.test
+*.swp
 
 ### C ###
 # Prerequisites
