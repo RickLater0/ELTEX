@@ -183,7 +183,7 @@ int main(int argc, char* argv[]){
         if (q1 == (mqd_t)-1 || q2 == (mqd_t)-1) {
             perror("Q OPEN ERR");
             mq_close(q1);
-            mq_unlink(q1_name);
+            mq_close(q2);
             return ERR_RET;
         }
 
