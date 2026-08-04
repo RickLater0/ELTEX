@@ -10,19 +10,20 @@
 #include <errno.h>
 
 #define BUFFER_LEN 128
-
+#define MAX_FNAME_LEN 512
 #define MSG_LEN 12
 
 static const char* const MSG_READY      = "READY1    \n";
 static const char* const MSG_HANDSHAKE  = "HANDSHAKE1\n";
 static const char* const MSG_STOP       = "STOP NOW1 \n";
+static const char* const MSG_ERR        = "ERR OCURR1\n";
 
 //fifo names
-static char* ffname = NULL;
-static char  sffname [128];
+static char*  ffname = NULL;
+static char   sffname [128];
 
-static char** names = NULL;
-static int    nsz   = 0   ;
+static char** names  = NULL;
+static int    nsz    = 0   ;
 
 //atomic read 
 ///читает из fd ровно sz байт и записывает в buf. возвращает ошибку (-1, 0) при неудачном чтении
@@ -49,9 +50,10 @@ static ssize_t write_all(int fd, const void *buf, size_t sz) {
     }
     return (ssize_t)total;
 }
+///TODO: добавить обработку MSG_ERR
 //родительский процесс
 static void parent_work(int in, int out, pid_t cpid){
-    char msg_buf  [16] ;
+    char msg_buf  [MSG_LEN] ;
     if(out == -1)//"поток" записи
         if((out=open(sffname, O_WRONLY)) == -1)
         {
@@ -98,9 +100,15 @@ static void parent_work(int in, int out, pid_t cpid){
 
         char buffer[BUFFER_LEN];
         ssize_t bytes_read;
+        ssize_t bytes_write;
         //пока есть файл отправление дочернему процессу содержимого файла
         while((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
-            write_all(out, buffer, (size_t)bytes_read);
+            if((bytes_write = write_all(out, buffer, (size_t)bytes_read)) == bytes_read)
+                ;
+            
+            fprintf(stderr, "READ-WRITE LENGTH MISMATCH: %d - %d", bytes_read, bytes_write);
+            write_all(out, MSG_ERR, MSG_LEN);
+            break;
         }
         close(fd);
         //переход к следующему файлу
@@ -122,6 +130,8 @@ static void parent_work(int in, int out, pid_t cpid){
     waitpid(cpid, NULL, 0);
 }
 
+///TODO: добавить обработку MSG_ERR
+//дочерний процесс
 static void child_work(int in, int out){
 
     if(in == -1) //"поток" чтения
@@ -156,20 +166,21 @@ static void child_work(int in, int out){
             size_t name_len;
             if (read_all(in, &name_len, sizeof(size_t)) <= 0) break;
             
-            char fname[512];   
+            char fname[MAX_FNAME_LEN];   
             if (read_all(in, fname, name_len) <= 0) break;
             
             off_t filesize;
             if (read_all(in, &filesize, sizeof(off_t)) <= 0) break;
 
             // создание файла *.copy
-            char new_fname[600];
+            char new_fname[MAX_FNAME_LEN + strlen(".copy")];
             snprintf(new_fname, sizeof(new_fname), "%s.copy", fname);
 
-            ///TODO: добавить обработку ошибки
+            
             int fd = open(new_fname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
             if (fd < 0) {
                 fprintf(stderr, "CHILD CANNOT CREATE FILE: %s\n", new_fname);
+                write_all(out, MSG_ERR, MSG_LEN);
             }else{
                 off_t remaining = filesize;
                 char buffer[BUFFER_LEN];
@@ -245,6 +256,7 @@ int main(int argc, char *argv[]){
     {
     case -1:
         fprintf(stderr, "FORK ERR\n");
+        free(names);
         exit(EXIT_FAILURE);
         break;
     case 0://дочерний процесс
