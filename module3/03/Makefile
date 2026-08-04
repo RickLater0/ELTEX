@@ -21,7 +21,7 @@ CFLAGS = -c -Wpedantic -Wall -Wextra -g -std=c23 \
 -Werror=shadow -Werror=strict-overflow=5 -Werror=switch-default -Werror=undef -Werror=unused \
 -Werror=stringop-overflow=4
 
-TARGET=copy.elf
+TARGET=qchat.elf
 ODIR=obj
 OBJ=$(ODIR)/main.o 
 all: $(TARGET)

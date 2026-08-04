@@ -27,13 +27,14 @@
 #define ERR_RET -1
 #define NOERR 0
 
-#define MAXMSG       16
+//не больше 10 сообщений для обычных пользователей
+#define MAXMSG       10
 #define CONTENT_SIZE 128
 #define NAME_SIZE    32
 #define QNAME_SIZE   128
 
 #define PRIO_EXIT    10
-#define PRIO_BASIC   10
+#define PRIO_BASIC   1
 
 typedef struct msg
 {
@@ -107,6 +108,9 @@ static void process_messages(){
         register_notify();
 }
 
+//./qchat.elf -n Rick chat.q
+//./qchat.elf chat.q
+
 int main(int argc, char* argv[]){
 
     for(int i = 1; i < argc; i++){
@@ -114,7 +118,7 @@ int main(int argc, char* argv[]){
             strncpy(char_name, argv[++i], NAME_SIZE );
             char_name[NAME_SIZE  - 1] = '\0';
         }else{
-            strncpy(bq_name,    argv[i],   QNAME_SIZE);
+            strncpy(bq_name,    argv[i],  QNAME_SIZE);
             bq_name  [QNAME_SIZE - 1] = '\0';
         }
     }
@@ -169,22 +173,23 @@ int main(int argc, char* argv[]){
 
         rx_mq = q1;//получение сообщений через первую очередь
         tx_mq = q2;//отправка сообщений через вторую очередь
-        printf("CREATOR: rx: %s, tx: %s", q1_name, q2_name);
+        printf("CREATOR: rx: %s, tx: %s\n", q1_name, q2_name);
     }else if (errno == EEXIST){
         //пользователь очереди
         is_creator = 0;
 
+        q1 = mq_open(q1_name, O_RDWR | O_NONBLOCK, 0600, &attr);
         mqd_t q2 = mq_open(q2_name, O_RDWR | O_NONBLOCK, 0600, &attr);
-        if (q2 == (mqd_t)-1) {
-            perror("Q2 OPEN ERR");
+        if (q1 == (mqd_t)-1 || q2 == (mqd_t)-1) {
+            perror("Q OPEN ERR");
             mq_close(q1);
             mq_unlink(q1_name);
             return ERR_RET;
         }
 
-        rx_mq = q1;//получение сообщений через первую очередь
-        tx_mq = q2;//отправка сообщений через вторую очередь
-        printf("CLIENT: rx: %s, tx: %s\n", q1_name, q2_name);
+        rx_mq = q2;//получение сообщений через первую очередь
+        tx_mq = q1;//отправка сообщений через вторую очередь
+        printf("CLIENT: rx: %s, tx: %s\n", q2_name, q1_name);
     }else{
         perror("Q OPEN ERR");
         return ERR_RET;
@@ -193,6 +198,7 @@ int main(int argc, char* argv[]){
     register_notify();
 
     printf("USR: %s. 'exit' or CTRL+C to leave\n", char_name);
+    printf("> ");
     fflush(stdout);
 
     char msg_buffer[CONTENT_SIZE];
@@ -243,10 +249,6 @@ int main(int argc, char* argv[]){
                     msg_flag = 0;
                     process_messages();
                 }
-                if (running) {
-                    printf("> ");
-                    fflush(stdout);
-                }
             } else {
                 //действительный EOF или ошибка ввода
                 break;
@@ -271,12 +273,12 @@ int main(int argc, char* argv[]){
 
     // Удаление очередей из системы производит только создатель
     if (is_creator) {
-        printf("[SYS] CLEARING QUEUES (%s, %s)\n", q1_name, q2_name);
+        printf("\n[SYS] CLEARING QUEUES (%s, %s)\n", q1_name, q2_name);
         mq_unlink(q1_name);
         mq_unlink(q2_name);
     }
 
-    printf("END\n");
+    printf("\nEND\n");
 
     return NOERR;
 }
