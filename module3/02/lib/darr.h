@@ -25,4 +25,5 @@ int d_gt(darr* arr, int ind, void* ret);
 int d_er(darr* arr);
 
 size_t d_sz(darr* arr);
+
 #endif //DARR_H

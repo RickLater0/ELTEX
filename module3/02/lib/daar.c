@@ -97,7 +97,7 @@ int d_er(darr* arr){
     return NOERR;
 }
 
-size_t d_gtsz(darr* arr){
+size_t d_sz(darr* arr){
     if(arr == NULL)
         return 0;
     return arr->sz;

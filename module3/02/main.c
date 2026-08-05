@@ -6,6 +6,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include "lib/darr.h"
 
@@ -54,6 +56,12 @@ typedef struct sub
 static key_t qkey;
 static int   msqid;
 
+static volatile sig_atomic_t running = 1;
+static void sig_handler(int sig){
+    (void) sig;
+    running = 0;
+}
+
 static void broker(){
 
     close(open(KEY_FILE, O_CREAT));
@@ -85,7 +93,10 @@ static void broker(){
     sub_t sub_entry;
     pid_t pub_pid;
 
-    for(;;){
+    signal(SIGINT, sig_handler);
+    signal(SIGTERM, sig_handler);
+
+    while(running){
         ssize_t bytes = msgrcv(msqid, &rmsg, sizeof(act_qmsg_t), ACT_PRIO, 0);
         if (bytes == -1) {
             if (errno == EIDRM || errno == EINTR) {
@@ -123,17 +134,55 @@ static void broker(){
                 }
             break;
             case CMD_SUBSCRIBE:
-                sub_t sub;
-                sub.pid = rmsg.pid;
-                strcpy(sub.topic, rmsg.msg.topic);
-                d_add(&subs, &sub);
+                sub_t nsub;
+                nsub.pid = rmsg.pid;
+                strncpy(nsub.topic, rmsg.msg.topic, TOPIC_LEN - 1);
+                nsub.topic[TOPIC_LEN - 1] = '\0';
+                d_add(&subs, &nsub);
             break;
             case CMD_UNSUBSCRIBE:
+                sub_t dsub;
+                dsub.pid = rmsg.pid;
+                strncpy(dsub.topic, rmsg.msg.topic, TOPIC_LEN - 1);
+                dsub.topic[TOPIC_LEN - 1] = '\0';
 
+                for(size_t i = 0; i < d_sz(&subs);){
+                    sub_t csub;
+                    d_gt(&subs, i, &csub);
+                    if(
+                        csub.pid == csub.pid && 
+                        (
+                            dsub.topic[0] == '\0' ||
+                            strcmp(dsub.topic, csub.topic) == 0
+                        )
+                    ){
+                        d_rm(&subs, i);
+                    } else
+                        i++;
+                }
+                
+            break;
+            default:
+                fprintf(stderr, "Unknown action: %d\n", rmsg.act);
             break;
         }
     }
 
+    //уведомление о смерти
+    pid_t pid;
+    for (size_t i = 0; i < d_sz(&pubs); i++) {
+        d_gt(&pubs, i, &pid);
+        if (kill(pid, SIGINT) == -1 && errno != ESRCH) {
+            perror("kill publisher");
+        }
+    }
+    for (size_t i = 0; i < d_sz(&subs); i++) {
+        sub_t sub;
+        d_gt(&subs, i, &sub);
+        if (kill(sub.pid, SIGINT) == -1 && errno != ESRCH) {
+            perror("kill subscriber");
+        }
+    }
 
     d_er(&subs);
     d_er(&pubs);
@@ -145,12 +194,22 @@ static void broker(){
     exit(EXIT_SUCCESS);
 }
 
+static void gen_msg(act_qmsg_t* msg, char topic[TOPIC_LEN]){
+    msg->mtype = ACT_PRIO;
+    msg->act = CMD_SEND;
+    msg->pid = getpid();
+    strcpy(msg->msg.topic, topic);
+    //рандомная генерация содержимого
+}
+
 static void publisher(){
     qkey = ftok(KEY_FILE, PROJ_ID);
     if(qkey == -1){
         fprintf(stderr, "Queue does not exist\n");
         exit(EXIT_FAILURE);
     }
+
+
 }
 
 static void subsciber(){
@@ -159,6 +218,7 @@ static void subsciber(){
         fprintf(stderr, "Queue does not exist\n");
         exit(EXIT_FAILURE);
     }
+
 }
 
 int main(int argc, char* argv[]){
@@ -191,7 +251,6 @@ int main(int argc, char* argv[]){
             return RET_ERR;
         }
 
-        
         if(flag == 0b1){
             broker();
         }else if(flag == 0b01){
