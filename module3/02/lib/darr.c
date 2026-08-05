@@ -3,17 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "lib/darr.h"
+#include "darr.h"
 
 #define BASE_CAPACITY 8
-
-typedef struct dynamic_arr
-{
-    void* arr;
-    size_t stsz;
-    size_t sz;
-    size_t capacity;
-} darr;
 
 int darr_init(darr* arr, size_t stsz){
     if(arr == NULL || stsz == 0)
@@ -49,11 +41,11 @@ int d_add(darr* arr, void* val){
     return NOERR;
 }
 
-int d_rm(darr* arr, int ind){
+int d_rm(darr* arr, size_t ind){
     if(arr == NULL)
         return RET_ERR;
 
-    if(ind < 0 || ind > arr->sz)
+    if(ind > arr->sz)
         return RET_ERR;
     
     memmove(
@@ -77,11 +69,11 @@ int d_rm(darr* arr, int ind){
     return NOERR;
 }
 
-int d_gt(darr* arr, int ind, void* ret){
+int d_gt(darr* arr, size_t ind, void* ret){
     if(arr == NULL)
         return RET_ERR;
 
-    if(ind < 0 || ind > arr->sz)
+    if(ind > arr->sz)
         return RET_ERR;
 
     memcpy(ret, (char*)arr->arr + ind * arr->stsz, arr->stsz);

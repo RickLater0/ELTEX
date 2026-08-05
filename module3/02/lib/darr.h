@@ -11,16 +11,19 @@
 
 typedef struct dynamic_arr
 {
-    
+    void* arr;
+    size_t stsz;
+    size_t sz;
+    size_t capacity;
 } darr;
 
 int darr_init(darr* arr, size_t stsz);
 
 int d_add(darr* arr, void* val);
 
-int d_rm(darr* arr, int ind);
+int d_rm(darr* arr, size_t ind);
 
-int d_gt(darr* arr, int ind, void* ret);
+int d_gt(darr* arr, size_t ind, void* ret);
 
 int d_er(darr* arr);
 

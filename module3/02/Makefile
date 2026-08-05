@@ -21,16 +21,21 @@ CFLAGS = -c -Wpedantic -Wall -Wextra -g -std=c23 \
 -Werror=shadow -Werror=strict-overflow=5 -Werror=switch-default -Werror=undef -Werror=unused \
 -Werror=stringop-overflow=4
 
-TARGET=qchat.elf
+TARGET=media.elf
 ODIR=obj
-OBJ=$(ODIR)/main.o 
+LDIR=lib
+OBJ=$(ODIR)/main.o $(ODIR)/darr.o
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(TARGET)
 
 
-$(ODIR)/main.o: main.c
+$(ODIR)/darr.o: $(LDIR)/darr.h $(LDIR)/darr.c
+	@mkdir -p $(ODIR)
+	$(CC) $(CFLAGS) $(LDIR)/darr.c -o $@
+
+$(ODIR)/main.o: main.c $(LDIR)/darr.h
 	@mkdir -p $(ODIR)
 	$(CC) $(CFLAGS) main.c -o $@
 
