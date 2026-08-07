@@ -305,6 +305,7 @@ static void subsciber(){
         fflush(stdout);
     }
 
+    //создание и отправка сообщения об отмене подписки
     cmd.mtype = ACT_PRIO;
     cmd.act = CMD_UNSUBSCRIBE;
     cmd.pid = getpid();
@@ -316,6 +317,7 @@ static void subsciber(){
     exit(EXIT_SUCCESS);
 }
 
+///TODO: задавать список заголовков что для подписчика, что для издателя
 int main(int argc, char* argv[]){
     unsigned int flag = 0b0;
     for(int i = 1; i < argc; i++){
