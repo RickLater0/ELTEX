@@ -9,7 +9,9 @@ typedef enum {
     MAP_ERR,
     UNMAP_ERR,
     DESTROY_ERR,
-    SEM_CR_ERR
+    SEM_CR_ERR,
+    SEM_GT_ERR,
+    FEXISTS
 } err;
 
 #endif //ERR_H

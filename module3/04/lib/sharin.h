@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <sys/shm.h>
 
-#include "lib/err.h"
+#include "err.h"
 
 #define NAME_LEN 256
 

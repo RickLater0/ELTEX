@@ -1,6 +1,4 @@
-##Компилятор
 CC=gcc
-##Флаги
 CFLAGS = -c -Wpedantic -Wall -Wextra -g -std=c23 \
 -pedantic \
 -Wno-error=format-nonliteral -Wformat-nonliteral \
@@ -21,25 +19,35 @@ CFLAGS = -c -Wpedantic -Wall -Wextra -g -std=c23 \
 -Werror=shadow -Werror=strict-overflow=5 -Werror=switch-default -Werror=undef -Werror=unused \
 -Werror=stringop-overflow=4
 
-TARGET=gen-cons.elf
-ODIR=obj
-LDIR=lib
-OBJ=$(ODIR)/main.o $(ODIR)/darr.o
+INCLUDES = -I . -I lib
+TARGET = gncs.elf
+ODIR = obj
+SRCDIR = src
+
+SRC = main.c $(SRCDIR)/sharin.c $(SRCDIR)/generator.c $(SRCDIR)/consumer.c
+OBJ = $(addprefix $(ODIR)/, $(notdir $(SRC:.c=.o)))
+
 all: $(TARGET)
 
 $(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET)
+	$(CC) $^ -o $@
 
+$(ODIR)/main.o: main.c | $(ODIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
 
-$(ODIR)/darr.o: $(LDIR)/darr.h $(LDIR)/darr.c
-	@mkdir -p $(ODIR)
-	$(CC) $(CFLAGS) $(LDIR)/darr.c -o $@
+$(ODIR)/sharin.o: $(SRCDIR)/sharin.c | $(ODIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
 
-$(ODIR)/main.o: main.c $(LDIR)/darr.h
-	@mkdir -p $(ODIR)
-	$(CC) $(CFLAGS) main.c -o $@
+$(ODIR)/generator.o: $(SRCDIR)/generator.c | $(ODIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
+
+$(ODIR)/consumer.o: $(SRCDIR)/consumer.c | $(ODIR)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
+
+$(ODIR):
+	mkdir -p $@
 
 clean:
-	rm -rf *.o $(TARGET)
+	rm -rf $(ODIR) $(TARGET)
 
 .PHONY: all clean

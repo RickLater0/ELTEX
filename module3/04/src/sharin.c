@@ -1,4 +1,8 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "sharin.h"
+
+#include <errno.h>
 #include <sys/mman.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -18,17 +22,21 @@ err shmem_create(sharin *shm, back_t bk, const char *name, int proj_id, size_t s
         if (!name) return ARGERR;
         strncpy(shm->name, name, NAME_LEN - 1);
         
-        shm->fd = shm_open(shm->name, O_CREAT | O_RDWR, mode);
+        shm->fd = shm_open(shm->name, O_CREAT | O_RDWR, (unsigned int)mode);
         if (shm->fd == -1) return OPEN_ERR;
 
-        if (ftruncate(shm->fd, sz) == -1) {
+        if (ftruncate(shm->fd, (off_t)sz) == -1) {
             close(shm->fd);
             return MEM_ALLOC_ERR;
         }
     } else if (bk == SYSV) {
         int fd;
-        if((fd = open(name, O_CREAT)) == -1)
+        if((fd = open(name, O_CREAT | O_EXCL)) == -1){
+            if(errno == EEXIST)
+                return FEXISTS;
             return OPEN_ERR;
+        }
+            
         close(fd);
 
         key_t qkey = ftok(name, proj_id);
@@ -45,7 +53,7 @@ err shmem_create(sharin *shm, back_t bk, const char *name, int proj_id, size_t s
     return NOERR;
 }
 
-err shmem_open(sharin *shm, back_t bk, const char *name, key_t key, size_t sz) {
+err shmem_open(sharin *shm, back_t bk, const char *name, int proj_id, size_t sz) {
     if (!shm) return ARGERR;
 
     memset(shm, 0, sizeof(sharin));
@@ -59,7 +67,12 @@ err shmem_open(sharin *shm, back_t bk, const char *name, key_t key, size_t sz) {
         shm->fd = shm_open(shm->name, O_RDWR, 0666);
         if (shm->fd == -1) return OPEN_ERR;
     } else if (bk == SYSV) {
-        shm->key = key;
+        key_t qkey = ftok(name, proj_id);
+        if(qkey == -1){
+            return OPEN_ERR;
+        }
+
+        shm->key = qkey;
         shm->shmid = shmget(shm->key, sz, 0666);
         if (shm->shmid == -1) return OPEN_ERR;
     } else {
