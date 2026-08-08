@@ -45,6 +45,7 @@ err consumer_main(int proj_id, const char* name){
             return SEM_CR_ERR;
         }
 
+        char proceesed = blk->count > 0 ? 1 : 0;
         if(blk->count > 0){
             data_t min_val = blk->data[0];
             data_t max_val = blk->data[0];
@@ -69,7 +70,9 @@ err consumer_main(int proj_id, const char* name){
         blk = (membl_s*) ((char*)sh.addr + blk->next_offset);
 
         semop(sem, &sb_v, 1);
-        sleep((unsigned int)rand() % 4 + 1);
+        if(proceesed == 1){
+            sleep((unsigned int)rand() % 4 + 1);
+        }
     }
     
     shmem_unmap(&sh);
