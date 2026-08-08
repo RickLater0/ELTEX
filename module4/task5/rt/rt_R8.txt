@@ -1,0 +1,3 @@
+C    217.1.38.0/24 is directly connected, FastEthernet0/0
+C    192.168.5.0/24 is directly connected, FastEthernet1/0
+O*IA 0.0.0.0/0 [110/2] via 217.1.38.3, 01:47:18, FastEthernet0/0

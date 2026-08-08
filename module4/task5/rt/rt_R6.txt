@@ -1,0 +1,14 @@
+
+O IA 217.1.38.0/24 [110/3] via 217.1.67.7, 01:50:09, FastEthernet2/0
+                   [110/3] via 217.1.26.2, 01:50:09, FastEthernet0/0
+C    217.1.67.0/24 is directly connected, FastEthernet2/0
+O    217.1.37.0/24 [110/2] via 217.1.67.7, 01:50:09, FastEthernet2/0
+O IA 217.1.1.0/24 [110/2] via 217.1.26.2, 01:50:09, FastEthernet0/0
+O    192.168.4.0/24 [110/2] via 217.1.67.7, 01:50:09, FastEthernet2/0
+O IA 192.168.5.0/24 [110/4] via 217.1.67.7, 01:46:43, FastEthernet2/0
+                    [110/4] via 217.1.26.2, 01:46:43, FastEthernet0/0
+O E2 217.1.45.0/24 [110/20] via 217.1.26.2, 01:30:46, FastEthernet0/0
+O E2 217.1.15.0/24 [110/20] via 217.1.26.2, 01:30:46, FastEthernet0/0
+O E2 192.168.1.0/24 [110/20] via 217.1.26.2, 01:30:46, FastEthernet0/0
+O E2 192.168.2.0/24 [110/20] via 217.1.26.2, 01:30:46, FastEthernet0/0
+C    217.1.26.0/24 is directly connected, FastEthernet0/0
