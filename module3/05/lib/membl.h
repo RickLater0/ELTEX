@@ -6,7 +6,9 @@
 #include <sys/types.h> 
 #define data_t unsigned long long
 #define DEF_MEM_SZ 4096
-#define DEF_SEM_F "/tmp/semproj.s"
+#define DEF_SEM_POSX_F "/sem_semproj.s"
+#define DEF_SEM_SYSV_F "/tmp/sem_semproj.s"
+
 typedef struct 
 {
     size_t count;

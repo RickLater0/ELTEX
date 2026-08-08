@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SHMEM_NAME "/tmp/shmem.m"
+#define SHMEM_POSX_NAME "/shmem.m"
+#define SHMEM_SYSV_NAME "/tmp/shmem.m"
 #define PROJ_ID 13002
 #define SHMEM_NAME_SIZE 256
-char mem_fname[SHMEM_NAME_SIZE] = "/tmp/shmem.m";
+char mem_fname[SHMEM_NAME_SIZE] = SHMEM_POSX_NAME;
 
 int main(int argc, char* argv[]){
     if(argc != 2 && argc != 3){

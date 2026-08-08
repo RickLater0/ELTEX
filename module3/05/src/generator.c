@@ -17,30 +17,23 @@
 #include <errno.h>
 #include <stdio.h>
 #include <signal.h>
+#include <semaphore.h>
 
-sharin sh;
+static sharin sh;
+static char* fname;
+static sem_t* sem = NULL;
 
-static void finally(int sem, const char* name){
-    shmem_unmap(&sh);
+static void finally(){
+    if(sem != SEM_FAILED){
+        sem_close(sem);
+        sem_unlink(DEF_SEM_POSX_F);
+    }
     shmem_destroy(&sh);
-    semctl(sem, 0, IPC_RMID);
-    remove(DEF_SEM_F);
-    remove(name);
 }
-
-char* fname;
-int sem = -1;
 
 static void siginth(int sig){
     (void)sig;
-        if (sem != -1) {
-        finally(sem, fname);
-    } else {
-        shmem_unmap(&sh);
-        shmem_destroy(&sh);
-        remove(DEF_SEM_F);
-        remove(fname);
-    }
+    finally();
     exit(EXIT_FAILURE);
 }
 err generator_main(int proj_id, const char* name){
@@ -49,40 +42,27 @@ err generator_main(int proj_id, const char* name){
     fname = malloc(strlen(name) + 1);
     strcpy(fname, name);
     signal(SIGINT, siginth);
-    if((r = shmem_create(&sh, SYSV, name, proj_id, DEF_MEM_SZ, IPC_EXCL | 0666)) != NOERR)
+    if((r = shmem_create(&sh, POS, name, proj_id, DEF_MEM_SZ, O_CREAT | O_EXCL | O_RDWR | 0666)) != NOERR){
+        finally();
         return r;
-    if((r = shmem_map(&sh, &sh.addr)) != NOERR)
-        return r;
-
-    
-    int fd;
-    if((fd = open(DEF_SEM_F, O_CREAT | O_RDWR | 0666)) == -1){
-        if(errno == EEXIST)
-            return FEXISTS;
-        return OPEN_ERR;
     }
-            
-    close(fd);
-    key_t key = ftok(DEF_SEM_F, proj_id);
-    if((sem = semget(key, 1, IPC_CREAT | IPC_EXCL | 0666)) == -1){
-        finally(sem, name);
+        
+    if((r = shmem_map(&sh, &sh.addr)) != NOERR){
+        finally();
+        return r;
+    }
+
+    sem = sem_open(DEF_SEM_POSX_F, O_CREAT | O_EXCL, 0666, 1);
+    if (sem == SEM_FAILED) {
+        finally();
         return SEM_CR_ERR;
     }
-
-    // Устанавливаем значение семафора = 1 
-    if (semctl(sem, 0, SETVAL, 1) == -1) {
-        finally(sem, name);
-        return SEM_CR_ERR;
-    }
-
     srand((unsigned int)time(NULL));
 
     void *base = sh.addr;
     off_t free_offset = 0;
 
-    struct sembuf sb_p = {0, -1, 0};
-    struct sembuf sb_v = {0,  1, 0};
-    semop(sem, &sb_p, 1);
+    sem_wait(sem);
     while (1)
     {
         size_t count = ((size_t)rand()) % 20 + 1;
@@ -108,15 +88,12 @@ err generator_main(int proj_id, const char* name){
         if (next_offset == 0)
             break;
     }
-    semop(sem, &sb_v, 1);
+    sem_post(sem);
     fprintf(stdout, "Gen completed\n");
     int all_done = 0;
     while (all_done != 1)
     {
-        if (semop(sem, &sb_p, 1) == -1) {
-            finally(sem, name);
-            return SEM_CR_ERR;
-        }
+        sem_wait(sem);
 
         
         off_t offset = 0;
@@ -134,11 +111,11 @@ err generator_main(int proj_id, const char* name){
             all_done = 1;
         }
 
-        semop(sem, &sb_v, 1);
+        sem_post(sem);
 
         sleep(5); 
     }
     //удаление семафора и разделяемой памяти
-    finally(sem, name);
+    finally();
     return NOERR;
 }

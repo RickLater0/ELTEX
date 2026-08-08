@@ -23,7 +23,10 @@ err shmem_create(sharin *shm, back_t bk, const char *name, int proj_id, size_t s
         strncpy(shm->name, name, NAME_LEN - 1);
         
         shm->fd = shm_open(shm->name, O_CREAT | O_RDWR, (unsigned int)mode);
-        if (shm->fd == -1) return OPEN_ERR;
+        if (shm->fd == -1) {
+            if (errno == EEXIST) return FEXISTS;
+            return OPEN_ERR;
+        }
 
         if (ftruncate(shm->fd, (off_t)sz) == -1) {
             close(shm->fd);

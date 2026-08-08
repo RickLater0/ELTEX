@@ -14,34 +14,47 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <semaphore.h>
+#include <signal.h>
 
+static sem_t* sem;
+static sharin sh;
 
+static void finally(){
+    shmem_unmap(&sh);
+    if(sem != SEM_FAILED){
+        sem_close(sem);
+    }
+}
+
+static void siginth(int sig){
+    (void)sig;
+    finally();
+}
 
 err consumer_main(int proj_id, const char* name){
-    sharin sh;
+    
     err r;
     
-    if((r = shmem_open(&sh, SYSV, name, proj_id, DEF_MEM_SZ)) != NOERR)
+    if((r = shmem_open(&sh, POS, name, proj_id, DEF_MEM_SZ)) != NOERR)
         return r;
     if((r = shmem_map(&sh, &sh.addr)) != NOERR)
         return r;
 
-    int sem;
-    key_t key = ftok(DEF_SEM_F, proj_id);
-    if((sem = semget(key, 1, 0666)) == -1){
+    signal(SIGINT, siginth);
+    sem = sem_open(DEF_SEM_POSX_F, 0);
+    if (sem == SEM_FAILED) {
+        finally();
         return SEM_GT_ERR;
     }
-
     srand((unsigned int)time(NULL));
     
     membl_s* blk = (membl_s*) sh.addr;
-    struct sembuf sb_p = {0, -1, 0};
-    struct sembuf sb_v = {0, 1, 0};
 
     while (1) 
     {
-        if (semop(sem, &sb_p, 1) == -1) {
-            shmem_unmap(&sh);
+        if (sem_wait(sem) == -1) {
+            finally();
             return SEM_CR_ERR;
         }
 
@@ -63,13 +76,19 @@ err consumer_main(int proj_id, const char* name){
         }
 
         if (blk->next_offset == 0) {
-            semop(sem, &sb_v, 1);
+            if (sem_post(sem) == -1) {
+                finally();
+                return SEM_CR_ERR;
+            }
             break;
         }
 
         blk = (membl_s*) ((char*)sh.addr + blk->next_offset);
 
-        semop(sem, &sb_v, 1);
+        if (sem_post(sem) == -1) {
+            finally();
+            return SEM_CR_ERR;
+        }
         if(proceesed == 1){
             sleep((unsigned int)rand() % 4 + 1);
         }
