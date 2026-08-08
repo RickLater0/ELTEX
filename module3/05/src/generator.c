@@ -95,7 +95,6 @@ err generator_main(int proj_id, const char* name){
     {
         sem_wait(sem);
 
-        
         off_t offset = 0;
         membl_s *b = (membl_s*)base;
         while (b->next_offset != 0) {
