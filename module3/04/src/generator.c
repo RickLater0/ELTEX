@@ -81,7 +81,7 @@ err generator_main(int proj_id, const char* name){
     off_t free_offset = 0;
 
     struct sembuf sb_p = {0, -1, 0};
-    struct sembuf sb_v = {0,  1, 0};
+    struct sembuf sb_v = {0,  1, 0};//сделать как в презентации
     semop(sem, &sb_p, 1);
     while (1)
     {
