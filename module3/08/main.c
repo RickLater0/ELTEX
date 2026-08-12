@@ -113,10 +113,16 @@ static void watch_packet(const char* buffer){
     clock_gettime(CLOCK_MONOTONIC, &now);
     double elapsed = time_diff_seconds(&start_time, &now);
 
+    char src_ip_str[INET_ADDRSTRLEN];
+    char dst_ip_str[INET_ADDRSTRLEN];
+
+    inet_ntop(AF_INET, &ip_hdr->saddr, src_ip_str, sizeof(src_ip_str));
+    inet_ntop(AF_INET, &ip_hdr->daddr, dst_ip_str, sizeof(dst_ip_str));
+
     fprintf(log_file, "%-6u\t%-8.6f\tUDP len=%-8u;\tIP %17s:%-5d -> %17s:%-5d;\n",
         pnum, elapsed, udp_len,
-        inet_ntoa(*(const struct in_addr*)&ip_hdr->saddr), src_port,
-        inet_ntoa(*(const struct in_addr*)&ip_hdr->daddr), dst_port
+        src_ip_str, src_port,
+        dst_ip_str, dst_port
     );
     fflush(log_file);
     pnum++;
