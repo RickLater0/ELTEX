@@ -19,10 +19,13 @@
 #include <fcntl.h>
 #include <getopt.h> 
 
-
+#include <linux/if_ether.h>
+#include <linux/if_packet.h>
+#include <net/if.h>
 
 #define BUFFER_SIZE 8192
 #define NAME_LEN 128
+#define ETHERTYPE_IP 0x0800
 
 int sockfd = -1;
 FILE* log_file = NULL;
@@ -89,10 +92,15 @@ static int should_log(const struct iphdr *ip_hdr, const struct udphdr *udp_hdr) 
     return 1; // все условия выполнены
 }
 
-static void watch_udp(const char* buffer){
+static void watch_packet(const char* buffer){
+    const struct ethhdr *eth_hdr = (const struct ethhdr *)buffer;
     
-    const struct iphdr* ip_hdr = (const struct iphdr*) buffer;
-    const struct udphdr* udp_hdr = (const struct udphdr*) (buffer + (ip_hdr->ihl * 4));
+    if (ntohs(eth_hdr->h_proto) != ETHERTYPE_IP)
+        return;
+    const struct iphdr* ip_hdr = (const struct iphdr*) (buffer + ETH_HLEN);
+    if (ip_hdr->protocol != IPPROTO_UDP)
+        return;
+    const struct udphdr* udp_hdr = (const struct udphdr*) (buffer + ETH_HLEN + (ip_hdr->ihl * 4));
 
     if(!should_log(ip_hdr, udp_hdr))
         return;
@@ -182,7 +190,7 @@ int main(int argc, char* argv[]){
 
     set_opt(argc, argv);
 
-    if((sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) < 0)
+    if((sockfd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
         _ext(-1);
 
     clock_gettime(CLOCK_MONOTONIC, &start_time);
@@ -201,15 +209,14 @@ int main(int argc, char* argv[]){
     fflush(log_file);
 
     char buffer[BUFFER_SIZE];
-    struct sockaddr_in src_addr;
+    struct sockaddr_ll src_addr;
     socklen_t addrlen = sizeof(src_addr);
-
     for(;;){
         ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &addrlen);
         if(n < 0)
             break;
         
-        watch_udp(buffer);
+        watch_packet(buffer);
     }
     _ext(0);
 }
