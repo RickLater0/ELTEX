@@ -28,8 +28,8 @@ SRCDIR = src
 ODIR = obj
 
 # Исходники
-CLIENT_SRC = client.c $(SRCDIR)/share.c
-SERVER_SRC = server.c $(SRCDIR)/share.c
+CLIENT_SRC = client.c $(SRCDIR)/common.c $(SRCDIR)/htbl.c
+SERVER_SRC = server.c $(SRCDIR)/common.c $(SRCDIR)/htbl.c
 
 # Генерация путей для объектных файлов
 CLIENT_OBJ = $(addprefix $(ODIR)/, $(notdir $(CLIENT_SRC:.c=.o)))

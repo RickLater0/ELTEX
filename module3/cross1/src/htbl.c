@@ -4,22 +4,13 @@
 
 #define HASH_SIZE 128
 
-typedef struct _entry{
+
+struct _entry{
     void* key  ;
     void* value;
     struct _entry *next;
-} _entry_t;
+};
 
-typedef struct hash_table {
-    _entry_t **buckets;   // Массив указателей на узлы
-    size_t capacity;      // Размер массива бакетов
-    size_t size;          // Количество элементов
-    hashf hash_of;        // Хеш-функция для ключа
-    equalityf val_equal;  
-    equalityf key_equal;
-    del_f del_key;
-    del_f del_val;
-} htbl_s;
 
 /// @brief 
 /// @param ht 

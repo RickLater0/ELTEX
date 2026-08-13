@@ -7,7 +7,20 @@ typedef uint32_t (*hashf )   (const void*);
 typedef int      (*equalityf)(const void*, const void*);
 typedef void     (*del_f)    (void *ptr);
 
-typedef struct hash_table htbl_s;
+typedef struct _entry _entry_t;
+
+typedef struct hash_table {
+    _entry_t **buckets;   // Массив указателей на узлы
+    size_t capacity;      // Размер массива бакетов
+    size_t size;          // Количество элементов
+    hashf hash_of;        // Хеш-функция для ключа
+    equalityf val_equal;  
+    equalityf key_equal;
+    del_f del_key;
+    del_f del_val;
+}htbl_s;
+
+
 
 err htbl_init   (htbl_s *ht, hashf hash_of, equalityf key_equal, equalityf val_equal, del_f delkey, del_f delval);
 err htbl_free   (htbl_s *ht);

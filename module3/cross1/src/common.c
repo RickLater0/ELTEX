@@ -1,4 +1,4 @@
-#include "share.h"
+#include "common.h"
 
 #include <stdlib.h>
 #include <errno.h>

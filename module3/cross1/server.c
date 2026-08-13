@@ -100,7 +100,7 @@ static void _process_client(char* buffer){
     char* udp_data = (char*)(buffer + (ip_hdr->ihl * 4) + udp_hdr_len);
 
     char payload[CONTENT_LEN] = {0};
-    int copy_len = (data_len < CONTENT_LEN - 1) ? data_len : CONTENT_LEN - 1;
+    uint32_t copy_len = (data_len < CONTENT_LEN - 1) ? data_len : CONTENT_LEN - 1;
     memcpy(payload, udp_data, copy_len);
     payload[strcspn(payload, "\r\n")] = 0;
 
@@ -112,13 +112,13 @@ static void _process_client(char* buffer){
     char echo[CONTENT_LEN + 32] = {0};
     snprintf(echo, sizeof(echo), "%s %u", payload, *cli_cnt);
 
-    uint32_t out_len = udp_hdr_len + strlen(echo);
+    uint32_t out_len = udp_hdr_len + (uint32_t)strlen(echo);
     char out_pack[BUFSIZ] = {0};
 
     struct udphdr *out_udp_hdr = (struct udphdr *)out_pack;
     out_udp_hdr->uh_sport = udp_hdr->uh_dport; 
     out_udp_hdr->uh_dport = udp_hdr->uh_sport; 
-    out_udp_hdr->uh_ulen  = htons(out_len);
+    out_udp_hdr->uh_ulen  = htons((uint16_t)out_len);
     out_udp_hdr->uh_sum   = 0;
 
     memcpy(out_pack + udp_hdr_len, echo, strlen(echo));
@@ -128,7 +128,7 @@ static void _process_client(char* buffer){
 
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_addr.s_addr = src_ip;
-    dest_addr.sin_port = src_port;
+    dest_addr.sin_port = (in_port_t)src_port;
 
     if (sendto(sockfd, out_pack, out_len, 0, (struct sockaddr*)&dest_addr, sizeof(dest_addr)) < 0) {
         perror("sendto failed");
@@ -167,14 +167,13 @@ int main(int argc, char* argv[]){
         _ext(-1);
     printf("Binded\n");
 
-    int nfds = -1;
-    struct epoll_event *events;
-
     char buffer[BUFSIZ];
     struct sockaddr_in src_addr;
     socklen_t addrlen = sizeof(src_addr);
     for(;;){
         ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &addrlen);
+        if(n <= 0)
+            break;
         _process_client(buffer);
     }
 
