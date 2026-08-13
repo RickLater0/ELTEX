@@ -22,11 +22,12 @@
 #include <linux/if_ether.h>
 #include <linux/if_packet.h>
 #include <net/if.h>
+#include <netinet/ether.h>
 
 #define BUFFER_SIZE 8192
 #define NAME_LEN 128
 #define ETHERTYPE_IP 0x0800
-
+#define ETHER_ADDRSTRLEN 18
 int sockfd = -1;
 FILE* log_file = NULL;
 uint32_t pnum = 1;
@@ -116,11 +117,18 @@ static void watch_packet(const char* buffer){
     char src_ip_str[INET_ADDRSTRLEN];
     char dst_ip_str[INET_ADDRSTRLEN];
 
+    char scr_mac_str[ETHER_ADDRSTRLEN];
+    char dst_mac_str[ETHER_ADDRSTRLEN];
+
     inet_ntop(AF_INET, &ip_hdr->saddr, src_ip_str, sizeof(src_ip_str));
     inet_ntop(AF_INET, &ip_hdr->daddr, dst_ip_str, sizeof(dst_ip_str));
 
-    fprintf(log_file, "%-6u\t%-8.6f\tUDP len=%-8u;\tIP %17s:%-5d -> %17s:%-5d;\n",
+    ether_ntoa_r((const struct ether_addr *)eth_hdr->h_source, scr_mac_str);
+    ether_ntoa_r((const struct ether_addr *)eth_hdr->h_dest  , dst_mac_str);
+
+    fprintf(log_file, "%-6u\t%-8.6f\tUDP len=%-8u; MAC: %18s -> %18s; IP %17s:%-5d -> %17s:%-5d;\n",
         pnum, elapsed, udp_len,
+        scr_mac_str, dst_mac_str,
         src_ip_str, src_port,
         dst_ip_str, dst_port
     );
@@ -212,11 +220,13 @@ int main(int argc, char* argv[]){
     char time_str[64];
     strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
     fprintf(log_file, "Capture started at %s\n", time_str);
+
     fflush(log_file);
 
     char buffer[BUFFER_SIZE];
     struct sockaddr_ll src_addr;
     socklen_t addrlen = sizeof(src_addr);
+    printf("sniff\n");
     for(;;){
         ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &addrlen);
         if(n < 0)
