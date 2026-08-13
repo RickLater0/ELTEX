@@ -91,7 +91,6 @@ static void _relay_data(nfds_t n, const void* buffer, size_t sz){
     }
 }
 
-//snprintf(notif, CONTENT_LEN, "%s:%s:%s:%ld", CMD_FILE, localfile, distfile, fsize); 
 static void _relay_file(nfds_t n, const char* cmd){
     char local_fname[NAME_LEN];
     char dist_fname [NAME_LEN];
@@ -102,13 +101,11 @@ static void _relay_file(nfds_t n, const char* cmd){
         return;
     }
 
-    // 1. Защита Path Traversal: извлекаем только чистое имя файла
     char tmp_fname[NAME_LEN];
     strncpy(tmp_fname, dist_fname, sizeof(tmp_fname) - 1);
     tmp_fname[sizeof(tmp_fname) - 1] = '\0';
     char *safe_fname = basename(tmp_fname);
 
-    // 2. Формируем путь сохранения в ~/Downloads/
     char target_path[1024];
     const char *home = getenv("HOME");
     if (!home) {
@@ -119,7 +116,7 @@ static void _relay_file(nfds_t n, const char* cmd){
     if (home) {
         char downloads_dir[512];
         snprintf(downloads_dir, sizeof(downloads_dir), "%s/Downloads", home);
-        mkdir(downloads_dir, 0755); // Создаем папку, если ее нет
+        mkdir(downloads_dir, 0755); 
         snprintf(target_path, sizeof(target_path), "%s/%s", downloads_dir, safe_fname);
     } else {
         snprintf(target_path, sizeof(target_path), "%s", safe_fname);

@@ -146,7 +146,6 @@ int main(int argc, char* argv[]){
             }
         }
     } else {
-        /* ---------------- РОДИТЕЛЬСКИЙ ПРОЦЕСС: ОТПРАВКА ---------------- */
         char user_input[CONTENT_LEN];
 
         while (1) {
