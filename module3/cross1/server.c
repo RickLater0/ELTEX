@@ -22,6 +22,7 @@
 
 #define LISTEN_QUEUE_SIZE 10 
 
+//хеш-таблица ключ - ip-port объед. в uint64; значение - счётчик 
 htbl_s htbl;
 int sockfd = -1;
 struct sockaddr_in serv_addr, cliaddr;
@@ -30,7 +31,7 @@ int clien = sizeof(cliaddr);
 
 static uint32_t _hash_of(const void* key) {
     uint64_t k = *(const uint64_t*)key;
-    // Простой и быстрый способ получить 32-битный хеш из 64-битного числа — XOR верхней и нижней половин
+    //хеш - xor верхней и нижней половин
     return (uint32_t)(k ^ (k >> 32));
 }
 
@@ -81,11 +82,11 @@ static void _process_packet(char* buffer){
 
     uint32_t *cli_cnt;
 
-    //
+    
     if(htbl_get(&htbl, &src_addr, (void**)&cli_cnt) == HTBL_OK) {
-        (*cli_cnt)++;
+        (*cli_cnt)++;//если такой адрес в таблице есть, счётчик увеличивается
         printf("Client counter %u\n", *cli_cnt);
-    } else {
+    } else {//иначе создаётся новая связка ключ-значение 
         uint64_t* new_key = malloc(sizeof(uint64_t));
         if (!new_key) return;
         *new_key = src_addr;
@@ -99,38 +100,43 @@ static void _process_packet(char* buffer){
         cli_cnt = new_cnt;
     }
 
+    //выборка полезной нагрузки из пакета
     uint32_t udp_hdr_len = sizeof(struct udphdr);
     uint32_t data_len = ntohs(udp_hdr->uh_ulen) - udp_hdr_len;
     char* udp_data = (char*)(buffer + (ip_hdr->ihl * 4) + udp_hdr_len);
 
+    //копирование полезной нагрузки
     char payload[CONTENT_LEN] = {0};
     uint32_t copy_len = (data_len < CONTENT_LEN - 1) ? data_len : CONTENT_LEN - 1;
     memcpy(payload, udp_data, copy_len);
     payload[strcspn(payload, "\r\n")] = 0;
 
+    //команда выхода
     if(strncmp(payload, CMD_EXIT, strlen(CMD_EXIT)) == 0){
         printf("Client exit\n");
         htbl_remove(&htbl, (void*)&src_addr);
         return;
     }
 
+    //создание эхо-сообщения
     char echo[CONTENT_LEN + 32] = {0};
     snprintf(echo, sizeof(echo), "%s %u", payload, *cli_cnt);
 
     uint32_t out_len = udp_hdr_len + (uint32_t)strlen(echo);
     char out_pack[BUFSIZ] = {0};
 
+    //формирование udp заголовка
     struct udphdr *out_udp_hdr = (struct udphdr *)out_pack;
     out_udp_hdr->uh_sport = udp_hdr->uh_dport; 
     out_udp_hdr->uh_dport = udp_hdr->uh_sport; 
     out_udp_hdr->uh_ulen  = htons((uint16_t)out_len);
     out_udp_hdr->uh_sum   = 0;
-
+    //полный пакет с эхо сообщением
     memcpy(out_pack + udp_hdr_len, echo, strlen(echo));
 
+    //адрес отправителя -> куда сервер отправляет сообщения
     struct sockaddr_in dest_addr;
     memset(&dest_addr, 0, sizeof(dest_addr));
-
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_addr.s_addr = src_ip;
     dest_addr.sin_port = (in_port_t)src_port;

@@ -34,17 +34,16 @@ static void _send_msg(const char* msg) {
     uint32_t out_len = udp_hdr_len + msg_len;
     char out_pack[BUFSIZ] = {0};
 
-    // Формируем UDP-заголовок
+    //формирование udp заголовка
     struct udphdr *out_udp_hdr = (struct udphdr *)out_pack;
-    out_udp_hdr->uh_sport = htons(CLI_PORT);       // Наш фиксированный порт
-    out_udp_hdr->uh_dport = servaddr.sin_port;     // Порт сервера
+    out_udp_hdr->uh_sport = htons(CLI_PORT);       
+    out_udp_hdr->uh_dport = servaddr.sin_port;     
     out_udp_hdr->uh_ulen  = htons((uint16_t)out_len);
     out_udp_hdr->uh_sum   = 0;
 
-    // Копируем сообщение после заголовка
+    //сам пакет
     memcpy(out_pack + udp_hdr_len, msg, msg_len);
 
-    // Ядро само добавит IP-заголовок, отправляем только UDP + Данные
     sendto(sockfd, out_pack, out_len, 0, (struct sockaddr*)&servaddr, sizeof(servaddr));
 }
 
@@ -68,24 +67,23 @@ static void _process_packet(char* buffer, ssize_t n){
     const struct iphdr*  ip_hdr  = (const struct iphdr* ) (buffer);
     int ip_hdr_len = ip_hdr->ihl * 4;
 
-    // Проверка, что в буфере достаточно данных хотя бы для IP и UDP заголовков
     if (n < ip_hdr_len + (ssize_t)sizeof(struct udphdr)) return;
 
     const struct udphdr* udp_hdr = (const struct udphdr*) (buffer + ip_hdr_len);
 
-    // Фильтруем мусорные пакеты: обрабатываем только те, что пришли на наш порт
+    //обработка только тех, что пришли на порт клиента
     if (ntohs(udp_hdr->uh_dport) != CLI_PORT) return;
 
     uint32_t udp_hdr_len = sizeof(struct udphdr);
     uint32_t data_len = ntohs(udp_hdr->uh_ulen) - udp_hdr_len;
     char* udp_data = (char*)(buffer + ip_hdr_len + udp_hdr_len);
 
+    //от сервера нужны только данные
     char payload[CONTENT_LEN] = {0};
     uint32_t copy_len = (data_len < CONTENT_LEN - 1) ? data_len : CONTENT_LEN - 1;
     memcpy(payload, udp_data, copy_len);
-    payload[copy_len] = '\0'; // Гарантируем нуль-терминатор
+    payload[copy_len] = '\0';
 
-    // Выводим ответ сервера в консоль
     printf("Server: %s\n", payload);
 }
 
@@ -102,6 +100,7 @@ int main(int argc, char* argv[]){
         _ext(-1);
     }
 
+    //формирование адреса клиента
     memset(&cliaddr, 0, sizeof(cliaddr));
     cliaddr.sin_family = AF_INET;
     cliaddr.sin_port = htons(0);
@@ -109,6 +108,7 @@ int main(int argc, char* argv[]){
     if(bind(sockfd, (struct sockaddr *) &cliaddr, sizeof(cliaddr)) < 0)
         _ext(-1);
 
+    //формирование адреса сервера
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(SERV_PORT);
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]){
     for (;;) {
         int ret = poll(fds, 2, -1);
         if (ret < 0) {
-            if (errno == EINTR) continue; // Игнорируем прерывания от системных вызовов
+            if (errno == EINTR) continue; 
             _ext(-1);
         }
 
@@ -139,7 +139,6 @@ int main(int argc, char* argv[]){
             input[strcspn(input, "\n")] = 0; // Удаляем перенос строки
             
             if (strlen(input) > 0) {
-                // Если пользователь вручную ввел команду выхода, штатно выходим
                 if (strcmp(input, CMD_EXIT) == 0) {
                     _ext(0);
                 }
