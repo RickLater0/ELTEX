@@ -65,10 +65,14 @@ static uint64_t _make_udp_addr(uint32_t ip_addr, uint32_t udp_port){
     return ((uint64_t)ip_addr << 32) | udp_port;
 }
 
-static void _process_client(char* buffer){
+static void _process_packet(char* buffer){
 
     const struct iphdr*  ip_hdr  = (const struct iphdr* ) (buffer);
     const struct udphdr* udp_hdr = (const struct udphdr*) (buffer  + (ip_hdr->ihl * 4));
+
+    if (ntohs(udp_hdr->uh_dport) != SERV_PORT) {
+        return; 
+    }
 
     uint32_t src_ip   = ip_hdr ->saddr   ;
     uint32_t src_port = udp_hdr->uh_sport;
@@ -80,7 +84,7 @@ static void _process_client(char* buffer){
     //
     if(htbl_get(&htbl, &src_addr, (void**)&cli_cnt) == HTBL_OK) {
         (*cli_cnt)++;
-        printf("Client exists, counter is now %u\n", *cli_cnt);
+        printf("Client counter %u\n", *cli_cnt);
     } else {
         uint64_t* new_key = malloc(sizeof(uint64_t));
         if (!new_key) return;
@@ -91,7 +95,7 @@ static void _process_client(char* buffer){
         *new_cnt = 1;
         
         htbl_put(&htbl, new_key, new_cnt);
-        printf("New client added, counter is 1\n");
+        printf("New client 1\n");
         cli_cnt = new_cnt;
     }
 
@@ -105,6 +109,7 @@ static void _process_client(char* buffer){
     payload[strcspn(payload, "\r\n")] = 0;
 
     if(strncmp(payload, CMD_EXIT, strlen(CMD_EXIT)) == 0){
+        printf("Client exit\n");
         htbl_remove(&htbl, (void*)&src_addr);
         return;
     }
@@ -133,7 +138,7 @@ static void _process_client(char* buffer){
     if (sendto(sockfd, out_pack, out_len, 0, (struct sockaddr*)&dest_addr, sizeof(dest_addr)) < 0) {
         perror("sendto failed");
     } else {
-        printf("Echo sent to client: %s", echo);
+        printf("Echo sent: %s\n", echo);
     }
 }
 
@@ -174,7 +179,7 @@ int main(int argc, char* argv[]){
         ssize_t n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &addrlen);
         if(n <= 0)
             break;
-        _process_client(buffer);
+        _process_packet(buffer);
     }
 
     _ext(0);
