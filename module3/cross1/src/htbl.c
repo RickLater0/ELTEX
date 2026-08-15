@@ -20,7 +20,7 @@ struct _entry{
 /// @param delkey    функция освобождения памяти ключа   , может быть NULL
 /// @param delval    функция освобождения памяти значения, может быть NULL
 /// @return 
-err htbl_init(htbl_s *ht, hashf hash_of, equalityf key_equal, equalityf val_equal, del_f delkey, del_f delval) {
+htbl_err htbl_init(htbl_s *ht, hashf hash_of, equalityf key_equal, equalityf val_equal, del_f delkey, del_f delval) {
     if (!ht || !hash_of || !key_equal) return HTBL_ERR_PARAM;
 
     ht->buckets = calloc(HASH_SIZE, sizeof(_entry_t*));
@@ -38,7 +38,7 @@ err htbl_init(htbl_s *ht, hashf hash_of, equalityf key_equal, equalityf val_equa
     return HTBL_OK;
 }
 
-err htbl_free(htbl_s *ht) {
+htbl_err htbl_free(htbl_s *ht) {
     if (!ht || !ht->buckets) return HTBL_ERR_PARAM;
 
     for (size_t i = 0; i < ht->capacity; i++) {
@@ -63,7 +63,7 @@ err htbl_free(htbl_s *ht) {
     return HTBL_OK;
 }
 
-err htbl_put(htbl_s *ht, void* key, void* value) {
+htbl_err htbl_put(htbl_s *ht, void* key, void* value) {
     if (!ht || !key) return HTBL_ERR_PARAM;
 
     uint32_t hash = ht->hash_of(key);
@@ -99,7 +99,7 @@ err htbl_put(htbl_s *ht, void* key, void* value) {
     return HTBL_OK;
 }
 
-err htbl_find(const htbl_s *ht, const void* value, void** rkey) {
+htbl_err htbl_find(const htbl_s *ht, const void* value, void** rkey) {
     if (!ht || !rkey) return HTBL_ERR_PARAM;
 
     for (size_t i = 0; i < ht->capacity; i++) {
@@ -117,7 +117,7 @@ err htbl_find(const htbl_s *ht, const void* value, void** rkey) {
     return HTBL_ERR_NOT_FOUND;
 }
 
-err htbl_get(const htbl_s *ht, const void* key, void** rvalue) {
+htbl_err htbl_get(const htbl_s *ht, const void* key, void** rvalue) {
     if (!ht || !key || !rvalue) return HTBL_ERR_PARAM;
 
     uint32_t hash = ht->hash_of(key);
@@ -135,7 +135,7 @@ err htbl_get(const htbl_s *ht, const void* key, void** rvalue) {
     return HTBL_ERR_NOT_FOUND;
 }
 
-err htbl_erase(htbl_s *ht, void* value) {
+htbl_err htbl_erase(htbl_s *ht, void* value) {
     if (!ht) return HTBL_ERR_PARAM;
 
     // Удаление по значению O(N)
@@ -167,7 +167,7 @@ err htbl_erase(htbl_s *ht, void* value) {
     return HTBL_ERR_NOT_FOUND;
 }
 
-err htbl_remove(htbl_s *ht, void* key) {
+htbl_err htbl_remove(htbl_s *ht, void* key) {
     if (!ht || !key) return HTBL_ERR_PARAM;
 
     uint32_t hash = ht->hash_of(key);

@@ -61,6 +61,6 @@ $(ODIR)/%.o: $(SRCDIR)/%.c | $(ODIR)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@
 
 clean:
-	rm -rf $(ODIR) $(CLIENT_TARGET) $(SERVER_TARGET)
+	rm -rf $(ODIR) $(TARGET_DIR)
 
 .PHONY: all clean
