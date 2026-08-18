@@ -6,6 +6,7 @@ chmo
 *.swp
 target/
 *vscode*
+.*
 ### C ###
 # Prerequisites
 *.d
