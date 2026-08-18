@@ -5,8 +5,7 @@ chmo
 *.test
 *.swp
 target/
-vscode*
-
+*vscode*
 ### C ###
 # Prerequisites
 *.d
