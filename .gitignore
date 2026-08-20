@@ -7,6 +7,7 @@ chmo
 target/
 *vscode*
 .*
+*.json
 ### C ###
 # Prerequisites
 *.d

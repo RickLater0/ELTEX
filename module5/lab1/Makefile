@@ -1,17 +1,18 @@
-obj-m += hello.o
-
 KDIR:=/lib/modules/$(shell uname -r)/build
 TDIR:=$(PWD)/target
 
-all: | $(TDIR)
-	make -C $(KDIR) M=$(PWD) modules
-	mv *.ko $(TDIR)/
+obj-m += hello.o
 
-$(TDIR):
+MAKEF:=CC=x86_64-linux-gnu-gcc -C $(KDIR) M=$(PWD)
+#я добьюсь чистоты в папке
+all:
 	mkdir -p $(TDIR)
+	$(MAKE) $(MAKEF) modules
+	-mv -t $(TDIR) .*.o *.o .*.cmd *.mod *.mod.c *.symvers *.order
+
 
 clean:
-	make -C $(KDIR) M=$(PWD) clean
-	rm -rf $(TDIR)
+	$(MAKE) $(MAKEF) clean
+	-rm -rf $(TDIR)
 
 .PHONY: all clean

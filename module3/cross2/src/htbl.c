@@ -103,7 +103,7 @@ htbl_err htbl_find(const htbl_s *ht, const void* value, void** rkey) {
     for (size_t i = 0; i < ht->capacity; i++) {
         _entry_t *curr = ht->buckets[i];
         while (curr) {
-            // Если val_equal задана - используем ее, иначе сравниваем адреса
+            // Если val_equal задана - используем ее, иначе сравнение адресов
             int match = ht->val_equal ? ht->val_equal(curr->value, value) : (curr->value == value);
             if (match) {
                 *rkey = curr->key;

@@ -101,7 +101,7 @@ static int create_driver(void){
         return T_FORKERR;
         break;
     case 0:
-        execl("/media/ELTEX/module3/cross2/target/driver.elf", "driver.elf", (char*)NULL);
+        execl("./driver.elf", "driver.elf", (char*)NULL);
         perror("execl failed");
         exit(EXIT_FAILURE);
     break;

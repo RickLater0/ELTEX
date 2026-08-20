@@ -17,7 +17,7 @@ typedef enum msg_code{
     TO_WORK,
     GET_STATUS,
     WORK_IS_SET,
-    SOME_ERR,
+    MSG_ERR,
     TURNING_OFF
 } msg_code_e;
 

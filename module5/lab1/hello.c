@@ -2,19 +2,19 @@
 #include <linux/kernel.h>    // included for KERN_INFO
 #include <linux/init.h>      // included for __init and __exit macros
 
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Lakshmanan");
-MODULE_DESCRIPTION("A Simple Hello World module");
+MODULE_LICENSE("GPL v2");
+MODULE_AUTHOR("RickLater0");
+MODULE_DESCRIPTION("Just one hello module");
 
 static int __init hello_init(void)
 {
-    printk(KERN_INFO "Hello world!\n");
+    printk(KERN_INFO "VSCode is pain in my ass\n");
     return 0;    // Non-zero return means that the module couldn't be loaded.
 }
 
 static void __exit hello_cleanup(void)
 {
-    printk(KERN_INFO "Cleaning up module.\n");
+    printk(KERN_INFO "Closing module\n");
 }
 
 module_init(hello_init);
